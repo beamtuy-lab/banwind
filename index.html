@@ -1,0 +1,1896 @@
+<!doctype html>
+<html lang="th" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบบ้านลมสวนสัตว์สไลเดอร์</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Kanit', sans-serif; }
+    .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); }
+    .glass { background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); }
+    .card-shadow { box-shadow: 0 10px 40px rgba(102,126,234,0.3); }
+    .progress-bar { transition: width 1s linear; }
+    .pulse-alert { animation: pulse 1s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .slide-up { animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .tab-active { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+    .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); transition: all 0.3s; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102,126,234,0.4); }
+    .time-critical { background: linear-gradient(135deg, #ff6b6b, #ee5a24) !important; }
+    .time-warning { background: linear-gradient(135deg, #f39c12, #e67e22) !important; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .main-tabs-wrap { position: sticky; top: 130px; z-index: 30; background: rgba(255,255,255,.92); backdrop-filter: blur(14px); box-shadow: 0 10px 24px rgba(60, 24, 105, .10); }
+    @media (min-width: 768px) { .main-tabs-wrap { top: 120px; } }
+    .main-tabs { width: min(92vw, 560px); margin: 0 auto; padding: .55rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; }
+    .main-tab-btn { border-radius: 999px; padding: .72rem 1rem; font-weight: 700; font-size: .92rem; color: #5f5870; background: #f4f1f8; border: 1px solid rgba(113, 73, 161, .18); box-shadow: inset 0 1px 0 rgba(255,255,255,.75); transition: transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease; }
+    .main-tab-btn:hover { transform: translateY(-1px); background: #ede7f5; box-shadow: 0 8px 18px rgba(84, 42, 130, .12); }
+    .main-tab-btn.tab-active { color: #fff; background: linear-gradient(135deg, #667eea, #764ba2); border-color: transparent; box-shadow: 0 10px 22px rgba(102,126,234,.26); }
+    .admin-fab { position: fixed; right: 14px; top: 14px; z-index: 60; width: 44px; height: 44px; border-radius: 999px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.88); background: rgba(63, 28, 103, .34); box-shadow: 0 10px 24px rgba(42, 15, 72, .14); border: 1px solid rgba(255,255,255,.26); backdrop-filter: blur(10px); opacity: .58; transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease, background .2s ease; }
+    .admin-fab:hover { transform: translateY(-2px); opacity: .9; background: rgba(63, 28, 103, .56); box-shadow: 0 14px 30px rgba(42, 15, 72, .22); }
+    .popup-box { transition: max-width .2s ease, max-height .2s ease, padding .2s ease; }
+    .popup-box.edit-mode { max-width: min(96vw, 980px) !important; max-height: 92vh !important; overflow: visible !important; }
+    .edit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+    .edit-actions { grid-column: 1 / -1; }
+    @media (max-width: 760px) { .edit-grid { grid-template-columns: 1fr; } .popup-box.edit-mode { overflow-y: auto !important; } }
+    .premium-loader { background: radial-gradient(circle at 25% 20%, rgba(255,255,255,.30), transparent 32%), linear-gradient(135deg, #3d176d 0%, #5b248c 45%, #7b3fb2 100%); }
+    .loader-card { width: min(92vw, 420px); border: 1px solid rgba(255,255,255,.24); background: rgba(255,255,255,.12); box-shadow: 0 30px 90px rgba(22,6,45,.44); backdrop-filter: blur(22px); }
+    .slide-scene { position: relative; width: 260px; height: 220px; margin: 0 auto; }
+    .slide-frame { position: absolute; left: 64px; top: 28px; width: 130px; height: 150px; border-radius: 30px 30px 18px 18px; background: rgba(255,255,255,.18); border: 4px solid rgba(255,255,255,.88); box-shadow: inset 0 0 0 2px rgba(255,255,255,.16), 0 18px 38px rgba(0,0,0,.18); transform: skewX(-8deg); }
+    .slide-lane { position: absolute; left: 84px; top: 48px; width: 90px; height: 124px; border-radius: 26px 26px 16px 16px; background: linear-gradient(180deg, #ffe08a, #f7b733); box-shadow: inset 0 -18px 30px rgba(157,80,0,.18); }
+    .slide-base { position: absolute; left: 28px; bottom: 24px; width: 202px; height: 28px; border-radius: 999px; background: rgba(255,255,255,.92); box-shadow: 0 12px 26px rgba(0,0,0,.14); }
+    .slide-leg { position: absolute; width: 10px; height: 92px; background: rgba(255,255,255,.82); border-radius: 999px; top: 106px; }
+    .slide-leg.one { left: 58px; transform: rotate(10deg); }
+    .slide-leg.two { right: 58px; transform: rotate(-10deg); }
+    .kid { position: absolute; width: 52px; height: 62px; left: 102px; top: 34px; animation: kidSlide 2.35s cubic-bezier(.45,0,.25,1) infinite; transform-origin: center; }
+    .kid-head { width: 34px; height: 34px; border-radius: 50%; background: #ffd7a8; margin: 0 auto; position: relative; box-shadow: inset 0 -4px 0 rgba(173,92,43,.08); }
+    .kid-hair { position:absolute; top:-3px; left:5px; width:24px; height:13px; border-radius: 14px 14px 5px 5px; background:#4b2c20; }
+    .kid-eye { position:absolute; top:16px; width:4px; height:4px; border-radius:50%; background:#3b241a; }
+    .kid-eye.left { left:10px; } .kid-eye.right { right:10px; }
+    .kid-smile { position:absolute; left:13px; top:22px; width:9px; height:5px; border-bottom:2px solid #9b4d31; border-radius:0 0 12px 12px; }
+    .kid-body { width: 38px; height: 28px; margin: -2px auto 0; border-radius: 15px 15px 12px 12px; background: #7dd3fc; position: relative; box-shadow: inset 0 -6px 0 rgba(3,105,161,.16); }
+    .kid-arm { position:absolute; top:5px; width:8px; height:24px; background:#ffd7a8; border-radius:999px; }
+    .kid-arm.left { left:-5px; transform: rotate(28deg); } .kid-arm.right { right:-5px; transform: rotate(-28deg); }
+    .sparkle { position:absolute; width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.9); animation: sparkle 1.8s ease-in-out infinite; }
+    .sparkle.s1 { left:32px; top:48px; animation-delay:.1s; } .sparkle.s2 { right:34px; top:82px; animation-delay:.55s; } .sparkle.s3 { left:52px; bottom:48px; animation-delay:1s; }
+    .loading-dots span { animation: dotPulse 1.2s ease-in-out infinite; display:inline-block; } .loading-dots span:nth-child(2){animation-delay:.2s;} .loading-dots span:nth-child(3){animation-delay:.4s;}
+    @keyframes kidSlide { 0% { transform: translate(0, 0) rotate(-7deg) scale(.98); opacity: .9; } 38% { transform: translate(-9px, 68px) rotate(5deg) scale(1); opacity:1; } 72% { transform: translate(-35px, 128px) rotate(-4deg) scale(1.02); opacity:1; } 100% { transform: translate(-35px, 128px) rotate(-4deg) scale(1.02); opacity:0; } }
+    @keyframes sparkle { 0%,100% { transform: scale(.45); opacity:.25; } 50% { transform: scale(1.15); opacity:1; } }
+    @keyframes dotPulse { 0%,100% { transform: translateY(0); opacity:.45; } 50% { transform: translateY(-4px); opacity:1; } }
+
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-gray-100">
+  <div id="app" class="h-full overflow-auto scrollbar-hide">
+   <div id="loadingScreen" class="fixed inset-0 premium-loader flex items-center justify-center z-50 hidden">
+    <div class="loader-card rounded-[2rem] p-6 md:p-8 text-center text-white">
+     <div class="slide-scene" aria-hidden="true">
+      <div class="slide-leg one"></div>
+      <div class="slide-leg two"></div>
+      <div class="slide-frame"></div>
+      <div class="slide-lane"></div>
+      <div class="kid">
+       <div class="kid-head"><span class="kid-hair"></span><span class="kid-eye left"></span><span class="kid-eye right"></span><span class="kid-smile"></span></div>
+       <div class="kid-body"><span class="kid-arm left"></span><span class="kid-arm right"></span></div>
+      </div>
+      <span class="sparkle s1"></span><span class="sparkle s2"></span><span class="sparkle s3"></span>
+      <div class="slide-base"></div>
+     </div>
+     <h3 class="text-xl md:text-2xl font-bold mt-2">กำลังประมวลผล</h3>
+     <p id="loadingMessage" class="mt-2 text-sm md:text-base text-white/90">กำลังเชื่อมต่อฐานข้อมูล</p>
+     <div class="loading-dots mt-3 text-2xl font-bold"><span>.</span><span>.</span><span>.</span></div>
+    </div>
+   </div>
+   <div id="popupModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div id="popupBox" class="popup-box glass rounded-2xl p-6 m-4 max-w-md w-full card-shadow slide-up max-h-96 overflow-y-auto">
+     <div id="popupContent"></div>
+    </div>
+   </div>
+   <div id="timeAlertModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-red-500 rounded-2xl p-6 m-4 max-w-md w-full card-shadow slide-up text-white text-center">
+     <div class="text-6xl mb-4">
+      ⏰
+     </div>
+     <h3 class="text-2xl font-bold mb-2">หมดเวลาแล้ว!</h3>
+     <p id="alertPlayerName" class="text-xl mb-4"></p><button onclick="closeTimeAlert()" class="bg-white text-red-500 px-6 py-2 rounded-full font-medium hover:bg-gray-100"> ปิด </button>
+    </div>
+   </div>
+   <header class="gradient-bg text-white p-4 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto">
+     <div class="text-center mb-3">
+      <h1 id="systemTitle" class="text-lg md:text-2xl font-bold">🎪 ระบบบ้านลมสวนสัตว์สไลเดอร์ 🎠</h1>
+      <p id="systemDesc" class="text-xs md:text-sm opacity-90">สนุกสนาน ปลอดภัย สำหรับเด็กๆ ทุกคน</p>
+     </div>
+     <div class="text-center">
+      <div id="digitalClock" class="text-2xl md:text-3xl font-bold tracking-wider"></div>
+      <div id="dateDisplay" class="text-xs md:text-sm opacity-90"></div>
+     </div>
+    </div>
+   </header>
+   <div class="main-tabs-wrap">
+    <div class="main-tabs" role="tablist" aria-label="เมนูหลัก">
+     <button onclick="switchTab('add')" id="tabAdd" class="main-tab-btn tab-active" type="button">➕ เพิ่มลูกค้า</button>
+     <button onclick="switchTab('playing')" id="tabPlaying" class="main-tab-btn" type="button">🎮 กำลังเล่น</button>
+    </div>
+   </div>
+   <main class="max-w-7xl mx-auto p-3 md:p-4 pb-20">
+    <div id="addTab" class="slide-up">
+     <div class="glass rounded-xl p-3 md:p-5 card-shadow max-w-md mx-auto">
+      <h2 class="text-base md:text-lg font-bold text-purple-700 mb-4 flex items-center justify-center gap-2"><span>👶</span> ลงทะเบียนลูกค้าใหม่</h2>
+      <div class="space-y-3">
+       <div>
+        <label class="block text-xs md:text-sm text-gray-700 font-medium mb-2">ชื่อเล่น</label> <input type="text" id="nickname" placeholder="กรอกชื่อเล่น..." class="w-full px-3 py-2 rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:outline-none transition-all text-xs md:text-sm">
+       </div>
+       <div>
+        <label class="block text-xs md:text-sm text-gray-700 font-medium mb-2">เพศ</label>
+        <div class="flex gap-2">
+         <button onclick="selectGender('ชาย')" id="genderMale" class="flex-1 py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs md:text-sm"> 👦 ชาย </button> <button onclick="selectGender('หญิง')" id="genderFemale" class="flex-1 py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs md:text-sm"> 👧 หญิง </button>
+        </div>
+       </div>
+       <div>
+        <label class="block text-xs md:text-sm text-gray-700 font-medium mb-2">เวลาเล่น</label>
+        <div class="grid grid-cols-3 gap-2">
+         <button onclick="selectTime(30)" id="time30" class="py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs">
+          <div class="text-sm md:text-base">
+           ⏱️ 30 นาที
+          </div>
+          <div id="price30Display" class="text-purple-600 font-bold text-xs">
+           40 บาท
+          </div></button> <button onclick="selectTime(60)" id="time60" class="py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs">
+          <div class="text-sm md:text-base">
+           ⏱️ 1 ชั่วโมง
+          </div>
+          <div id="price60Display" class="text-purple-600 font-bold text-xs">
+           60 บาท
+          </div></button> <button onclick="selectTime(120)" id="time120" class="py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs">
+          <div class="text-sm md:text-base">
+           ⏱️ 2 ชั่วโมง
+          </div>
+          <div id="price120Display" class="text-purple-600 font-bold text-xs">
+           100 บาท
+          </div></button>
+        </div>
+       </div>
+       <div>
+        <label class="block text-xs md:text-sm text-gray-700 font-medium mb-2">ถุงเท้าเด็ก <span id="socksPriceLabel" class="text-xs">(คู่ละ 20 บาท)</span></label>
+        <div class="flex gap-2">
+         <button onclick="selectSocks(0)" id="socks0" class="flex-1 py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs"> 🧦 ไม่ซื้อ (มีแล้ว) </button> <button onclick="selectSocks(1)" id="socks1" class="flex-1 py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs"> 🧦 ซื้อ 1 คู่ </button>
+        </div>
+       </div>
+       <div>
+        <label class="block text-xs md:text-sm text-gray-700 font-medium mb-2">วิธีชำระเงิน</label>
+        <div class="flex gap-2">
+         <button onclick="selectPayment('เงินสด')" id="payCash" class="flex-1 py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs"> 💵 เงินสด </button> <button onclick="selectPayment('สแกนจ่าย')" id="payScan" class="flex-1 py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs"> 📱 สแกนจ่าย </button>
+        </div>
+       </div>
+       <div id="summary" class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-3 hidden">
+        <h3 class="font-bold text-purple-700 mb-2 text-xs md:text-sm">📋 สรุปยอดชำระ</h3>
+        <div class="space-y-1 text-xs">
+         <div class="flex justify-between"><span>ค่าเล่น:</span><span id="summaryPlayPrice">0 บาท</span>
+         </div>
+         <div class="flex justify-between"><span>ค่าถุงเท้า:</span><span id="summarySocksPrice">0 บาท</span>
+         </div>
+         <div class="flex justify-between font-bold border-t pt-1 mt-1"><span>รวม:</span><span id="summaryTotal" class="text-purple-600">0 บาท</span>
+         </div>
+        </div>
+       </div><button onclick="saveCustomer()" class="w-full btn-primary text-white py-3 rounded-lg font-bold text-xs md:text-sm"> ✅ บันทึกและเริ่มเล่น </button>
+      </div>
+     </div>
+    </div>
+    <div id="playingTab" class="hidden slide-up">
+     <div class="grid grid-cols-3 gap-3 mb-4">
+      <div class="glass rounded-lg p-3 text-center card-shadow">
+       <div class="text-xl md:text-2xl font-bold text-purple-600" id="statPlaying">
+        0
+       </div>
+       <div class="text-xs md:text-sm text-gray-600">
+        🎮 กำลังเล่น
+       </div>
+      </div>
+      <div class="glass rounded-lg p-3 text-center card-shadow">
+       <div class="text-xl md:text-2xl font-bold text-blue-600" id="statToday">
+        0
+       </div>
+       <div class="text-xs md:text-sm text-gray-600">
+        📅 วันนี้
+       </div>
+      </div>
+      <div class="glass rounded-lg p-3 text-center card-shadow">
+       <div class="text-xl md:text-2xl font-bold text-pink-600" id="statSocks">
+        0
+       </div>
+       <div class="text-xs md:text-sm text-gray-600">
+        🧦 ถุงเท้า
+       </div>
+      </div>
+     </div>
+     <div id="playerCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+      <div class="glass rounded-lg p-4 text-center text-gray-400 text-sm">
+       <div class="text-3xl mb-2">
+        🎈
+       </div>
+       <p>ยังไม่มีผู้เล่น</p>
+      </div>
+     </div>
+    </div>
+    <div id="adminTab" class="hidden slide-up">
+     <div id="adminLogin" class="glass rounded-xl p-6 card-shadow max-w-md mx-auto">
+      <h2 class="text-lg font-bold text-purple-700 mb-4 text-center">🔐 เข้าสู่ระบบ Admin</h2><input type="password" id="adminPassword" placeholder="รหัสผ่าน..." class="w-full px-4 py-2 rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:outline-none mb-4 text-sm"> <button onclick="loginAdmin()" class="w-full btn-primary text-white py-2 rounded-lg font-bold text-sm"> เข้าสู่ระบบ </button>
+     </div>
+     <div id="adminPanel" class="hidden">
+      <div class="flex flex-wrap gap-2 mb-4">
+       <button onclick="switchAdminPage('dashboard')" id="adminNavDashboard" class="px-3 py-2 rounded-full btn-primary text-white text-xs md:text-sm font-medium"> 📊 แดชบอร์ด </button> <button onclick="switchAdminPage('calendar')" id="adminNavCalendar" class="px-3 py-2 rounded-full bg-gray-200 text-gray-700 text-xs md:text-sm font-medium hover:bg-gray-300"> 📅 ปฏิทิน </button> <button onclick="switchAdminPage('manage')" id="adminNavManage" class="px-3 py-2 rounded-full bg-gray-200 text-gray-700 text-xs md:text-sm font-medium hover:bg-gray-300"> 👥 จัดการลูกค้า </button> <button onclick="switchAdminPage('settings')" id="adminNavSettings" class="px-3 py-2 rounded-full bg-gray-200 text-gray-700 text-xs md:text-sm font-medium hover:bg-gray-300"> ⚙️ ตั้งค่า </button> <button onclick="logoutAdmin()" class="px-3 py-2 rounded-full bg-red-500 text-white text-xs md:text-sm font-medium hover:bg-red-600 ml-auto"> 🚪 ออก </button>
+      </div>
+      <div id="adminDashboard" class="space-y-4">
+       <div class="glass rounded-lg p-4 card-shadow">
+        <div class="flex flex-wrap items-end gap-3">
+         <div>
+          <label class="block text-xs font-bold text-purple-700 mb-1">เลือกเดือน</label>
+          <select id="dashboardMonth" onchange="updateDashboardFilter()" class="px-3 py-2 rounded-lg border-2 border-purple-200 text-xs md:text-sm"></select>
+         </div>
+         <div>
+          <label class="block text-xs font-bold text-purple-700 mb-1">เลือกปี</label>
+          <select id="dashboardYear" onchange="updateDashboardFilter()" class="px-3 py-2 rounded-lg border-2 border-purple-200 text-xs md:text-sm"></select>
+         </div>
+         <button type="button" onclick="updateDashboardFilter()" class="btn-primary text-white px-4 py-2 rounded-lg font-bold text-xs md:text-sm">🔎 เรียกดูข้อมูล</button>
+         <div class="text-xs text-gray-500">ข้อมูลสรุปจะอ้างอิงเดือน/ปีที่เลือก</div>
+        </div>
+       </div>
+       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="glass rounded-lg p-3 card-shadow">
+         <div class="text-xs text-gray-600 mb-1">💰 วันนี้</div>
+         <div class="text-xl md:text-2xl font-bold text-green-600" id="dashIncomeToday">0 ฿</div>
+        </div>
+        <div class="glass rounded-lg p-3 card-shadow">
+         <div class="text-xs text-gray-600 mb-1">📅 เดือนที่เลือก</div>
+         <div class="text-xl md:text-2xl font-bold text-blue-600" id="dashIncomeMonth">0 ฿</div>
+        </div>
+        <div class="glass rounded-lg p-3 card-shadow">
+         <div class="text-xs text-gray-600 mb-1">📆 ปีที่เลือก</div>
+         <div class="text-xl md:text-2xl font-bold text-purple-600" id="dashIncomeYear">0 ฿</div>
+        </div>
+        <div class="glass rounded-lg p-3 card-shadow">
+         <div class="text-xs text-gray-600 mb-1">👥 ลูกค้าเดือนที่เลือก</div>
+         <div class="text-xl md:text-2xl font-bold text-pink-600" id="dashTotalCustomers">0</div>
+        </div>
+       </div>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="glass rounded-lg p-4 card-shadow">
+         <h3 class="font-bold text-purple-700 mb-2 text-sm">📈 ค่าเฉลี่ยผู้เล่น</h3>
+         <div class="space-y-1 text-xs">
+          <div class="flex justify-between"><span>ค่าเฉลี่ยรายได้/คน:</span><span id="avgPerCustomer">0 ฿</span></div>
+          <div class="flex justify-between"><span>ค่าเฉลี่ยผู้เล่น/วัน:</span><span id="avgPerDay">0 คน</span></div>
+          <div class="flex justify-between"><span>เวลาเล่นเฉลี่ย/คน:</span><span id="avgPlayTime">0 นาที</span></div>
+         </div>
+        </div>
+        <div class="glass rounded-lg p-4 card-shadow">
+         <h3 class="font-bold text-purple-700 mb-2 text-sm">⏰ ช่วงเวลายอดนิยม</h3>
+         <div id="popularTimes" class="space-y-1 text-xs"></div>
+        </div>
+       </div>
+       <div class="glass rounded-lg p-4 card-shadow">
+        <h3 class="font-bold text-purple-700 mb-3 text-sm">📊 กราฟรายได้ 7 วันล่าสุด</h3>
+        <div id="incomeChart" class="h-32 flex items-end justify-around gap-1"></div>
+       </div>
+       <div class="glass rounded-lg p-4 card-shadow">
+        <h3 class="font-bold text-purple-700 mb-4 text-sm">🥧 กราฟวงกลมรายได้เดือนที่เลือก</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+         <div id="incomeChartContainer" class="flex justify-center items-center" style="height: 250px;"></div>
+         <div id="incomeChartLegend" class="space-y-2 text-xs md:text-sm"></div>
+        </div>
+       </div>
+       <div class="glass rounded-lg p-4 card-shadow">
+        <h3 class="font-bold text-purple-700 mb-3 text-sm">🧦 สรุปการขายถุงเท้า</h3>
+        <div class="grid grid-cols-3 gap-3 text-center text-xs">
+         <div><div class="text-lg font-bold text-purple-600" id="socksTodayStat">0</div><div class="text-gray-600">วันนี้</div></div>
+         <div><div class="text-lg font-bold text-blue-600" id="socksMonthStat">0</div><div class="text-gray-600">เดือนที่เลือก</div></div>
+         <div><div class="text-lg font-bold text-green-600" id="socksIncomeStat">0 ฿</div><div class="text-gray-600">รายได้รวม</div></div>
+        </div>
+       </div>
+      </div>
+      <div id="adminCalendar" class="hidden space-y-4">
+       <div class="glass rounded-lg p-2 md:p-4 card-shadow">
+        <div class="flex justify-between items-center mb-3">
+         <button onclick="changeMonth(-1)" class="px-2 py-1 bg-purple-100 rounded-lg hover:bg-purple-200 text-xs md:text-sm">◀</button>
+         <h3 class="font-bold text-purple-700 text-xs md:text-base" id="calendarTitle">มกราคม 2024</h3><button onclick="changeMonth(1)" class="px-2 py-1 bg-purple-100 rounded-lg hover:bg-purple-200 text-xs md:text-sm">▶</button>
+        </div>
+        <div class="grid grid-cols-7 gap-0.5 text-center text-xs mb-2 font-bold">
+         <div class="text-red-500">
+          อา
+         </div>
+         <div>
+          จ
+         </div>
+         <div>
+          อ
+         </div>
+         <div>
+          พ
+         </div>
+         <div>
+          พฤ
+         </div>
+         <div>
+          ศ
+         </div>
+         <div class="text-blue-500">
+          ส
+         </div>
+        </div>
+        <div id="calendarDays" class="grid grid-cols-7 gap-0.5 text-xs"></div>
+       </div>
+       <div class="glass rounded-lg p-4 card-shadow">
+        <h3 class="font-bold text-purple-700 text-base mb-4">📊 รายละเอียดประจำวัน</h3>
+        <div id="calendarDetailsTable" class="overflow-x-auto">
+         <table class="w-full text-xs border-collapse">
+          <thead>
+           <tr class="bg-purple-100 border-b-2 border-purple-300">
+            <th class="p-2 text-left font-bold">📅 วันที่</th>
+            <th class="p-2 text-right font-bold">👥 ลูกค้า</th>
+            <th class="p-2 text-right font-bold">💰 รายได้รวม</th>
+            <th class="p-2 text-right font-bold">🧦 รายได้ถุงเท้า</th>
+            <th class="p-2 text-right font-bold">🧦 จำนวนถุงเท้า</th>
+            <th class="p-2 text-right font-bold">💵 เงินสด</th>
+            <th class="p-2 text-right font-bold">📱 สแกน</th>
+           </tr>
+          </thead>
+          <tbody id="calendarTableBody"></tbody>
+         </table>
+        </div>
+       </div>
+      </div>
+      <div id="adminManage" class="hidden">
+       <div class="glass rounded-lg p-4 card-shadow">
+        <div class="flex flex-wrap gap-2 mb-4"><input type="text" id="searchCustomer" placeholder="🔍 ค้นหา..." class="flex-1 min-w-[150px] px-3 py-2 rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:outline-none text-xs md:text-sm"> <input type="date" id="filterFromDate" class="px-3 py-2 rounded-lg border-2 border-purple-200 text-xs md:text-sm" onchange="filterCustomers()"> <input type="date" id="filterToDate" class="px-3 py-2 rounded-lg border-2 border-purple-200 text-xs md:text-sm" onchange="filterCustomers()"> <select id="filterStatus" onchange="filterCustomers()" class="px-3 py-2 rounded-lg border-2 border-purple-200 text-xs md:text-sm"> <option value="all">ทั้งหมด</option> <option value="playing">🎮 เล่น</option> <option value="completed">✅ เสร็จ</option> </select>
+        </div>
+        <div class="bg-red-50 rounded-lg p-3 mb-4">
+         <h4 class="font-bold text-red-600 mb-2 text-xs">🗑️ ลบตามช่วงวันที่</h4>
+         <div class="flex flex-wrap gap-2 text-xs">
+          <input type="date" id="deleteFromDate" class="px-2 py-1 rounded-lg border"> <span class="self-center">ถึง</span> <input type="date" id="deleteToDate" class="px-2 py-1 rounded-lg border"> <button onclick="deleteByDateRange()" class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 font-medium">ลบ</button>
+         </div>
+        </div>
+        <div id="customerList" class="space-y-2 max-h-96 overflow-y-auto"></div>
+       </div>
+      </div>
+      <div id="adminSettings" class="hidden">
+       <div class="glass rounded-lg p-6 card-shadow max-w-lg mx-auto">
+        <h3 class="font-bold text-purple-700 mb-4 text-lg">⚙️ ตั้งค่าระบบ</h3>
+        <div class="space-y-3">
+         <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-3 text-xs text-purple-800 leading-relaxed">
+          🔒 ระบบล็อกการเชื่อมต่อฐานข้อมูลไว้ที่ <strong>CONFIG_WEB_APP_URL</strong> ในไฟล์ HTML แล้ว หากเชื่อมต่อไม่ได้ให้ตรวจสอบ URL /exec และสิทธิ์ Deploy ของ Google Apps Script
+         </div>
+<div>
+          <label class="block text-xs md:text-sm text-gray-700 font-medium mb-1">ชื่อระบบ</label> <input type="text" id="settingName" class="w-full px-3 py-2 rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:outline-none text-xs md:text-sm">
+         </div>
+         <div>
+          <label class="block text-xs md:text-sm text-gray-700 font-medium mb-1">คำอธิบาย</label> <input type="text" id="settingDesc" class="w-full px-3 py-2 rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:outline-none text-xs md:text-sm">
+         </div>
+         <div class="grid grid-cols-2 gap-3">
+          <div>
+           <label class="block text-xs font-medium mb-1">30 นาที (บาท)</label> <input type="number" id="settingPrice30" class="w-full px-3 py-2 rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:outline-none text-xs">
+          </div>
+          <div>
+           <label class="block text-xs font-medium mb-1">1 ชั่วโมง (บาท)</label> <input type="number" id="settingPrice60" class="w-full px-3 py-2 rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:outline-none text-xs">
+          </div>
+          <div>
+           <label class="block text-xs font-medium mb-1">2 ชั่วโมง (บาท)</label> <input type="number" id="settingPrice120" class="w-full px-3 py-2 rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:outline-none text-xs">
+          </div>
+          <div>
+           <label class="block text-xs font-medium mb-1">ถุงเท้า (บาท)</label> <input type="number" id="settingPriceSocks" class="w-full px-3 py-2 rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:outline-none text-xs">
+          </div>
+         </div><button onclick="saveSettings()" class="w-full btn-primary text-white py-3 rounded-lg font-bold text-xs md:text-sm"> 💾 บันทึก </button>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </main>
+   <button type="button" id="adminFloatingButton" onclick="openAdminPanel()" class="admin-fab" title="เข้าสู่ระบบผู้ดูแล" aria-label="เข้าสู่ระบบผู้ดูแล">🔑</button>
+  </div>
+  <script>
+    // ===== Google Apps Script Server Adapter =====
+    // ล็อก URL ฐานข้อมูลไว้ที่ค่านี้เท่านั้น ห้ามอ่าน/เขียน URL จาก localStorage
+    const CONFIG_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz32DG_GLJ_3ywfXmENlUpa--Pp0mJcnnk7cFGc5uMSITdS62KwZYfqmNWqIe_Vs1Gh/exec';
+
+    function normalizeWebAppUrl(url) {
+      const value = String(url || '').trim();
+      if (!value) return '';
+      return value.replace(/\/dev(\?.*)?$/, '/exec$1');
+    }
+
+    function getApiUrl() {
+      const url = normalizeWebAppUrl(CONFIG_WEB_APP_URL);
+      if (!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec(\?.*)?$/.test(url)) {
+        throw new Error('CONFIG_WEB_APP_URL ไม่ถูกต้อง กรุณาใช้ URL Web App ที่ลงท้ายด้วย /exec');
+      }
+      return url;
+    }
+
+    function parseServerJson(text) {
+      try {
+        return JSON.parse(text);
+      } catch (error) {
+        const preview = String(text || '').replace(/\s+/g, ' ').slice(0, 180);
+        throw new Error('Server response ไม่ใช่ JSON: ' + preview);
+      }
+    }
+
+    async function fetchJson(url, options) {
+      const response = await fetch(url, options);
+      const text = await response.text();
+      if (!response.ok) throw new Error('HTTP ' + response.status + ': ' + text.slice(0, 160));
+      return parseServerJson(text);
+    }
+
+    function buildGetFallbackUrl() {
+      const url = new URL(getApiUrl());
+      url.searchParams.set('action', 'read_all');
+      url.searchParams.set('_ts', Date.now().toString());
+      return url.toString();
+    }
+
+    async function getReadAllFallback() {
+      return await fetchJson(buildGetFallbackUrl(), {
+        method: 'GET',
+        redirect: 'follow',
+        cache: 'no-store'
+      });
+    }
+
+    async function runGasApi(payload) {
+      return new Promise((resolve, reject) => {
+        if (!window.google || !google.script || !google.script.run) {
+          reject(new Error('google.script.run ไม่พร้อมใช้งาน'));
+          return;
+        }
+        google.script.run
+          .withSuccessHandler((response) => {
+            try { resolve(typeof response === 'string' ? parseServerJson(response) : response); }
+            catch (error) { reject(error); }
+          })
+          .withFailureHandler((error) => reject(new Error(error && error.message ? error.message : String(error))))
+          .api(JSON.stringify(payload));
+      });
+    }
+
+    async function postToServer(payload) {
+      const apiUrl = getApiUrl();
+      const isReadRequest = payload.action === 'list' || payload.action === 'read_all';
+
+      if (window.google && google.script && google.script.run && window.location.href.includes('script.google.com')) {
+        try {
+          return await runGasApi(payload);
+        } catch (gasError) {
+          if (!isReadRequest) throw gasError;
+        }
+      }
+
+      try {
+        return await fetchJson(apiUrl, {
+          method: 'POST',
+          redirect: 'follow',
+          cache: 'no-store',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+      } catch (postError) {
+        if (isReadRequest) {
+          try {
+            const fallback = await getReadAllFallback();
+            if (fallback && fallback.ok) return fallback;
+          } catch (getError) {
+            throw new Error('POST และ GET fallback ไม่สำเร็จ กรุณาตรวจสอบ CONFIG_WEB_APP_URL และสิทธิ์ Deploy Web App เป็น Anyone: ' + getError.message);
+          }
+        }
+        throw new Error('เชื่อมต่อ GAS ไม่สำเร็จ กรุณาตรวจสอบ CONFIG_WEB_APP_URL และสิทธิ์ Deploy Web App เป็น Anyone: ' + postError.message);
+      }
+    }
+
+    async function withLoading(message, task) {
+      showLoading(message);
+      try {
+        return await task();
+      } finally {
+        hideLoading();
+      }
+    }
+
+    window.dataSdk = {
+      handler: null,
+      async init(handler) {
+        this.handler = handler;
+        return await this.refresh('กำลังโหลดข้อมูลจากฐานข้อมูล');
+      },
+      async refresh(message = 'กำลังโหลดข้อมูลล่าสุด') {
+        return await withLoading(message, async () => {
+          try {
+            const result = await postToServer({ action: 'list' });
+            if (result && result.ok) {
+              this.handler?.onDataChanged(result.data || []);
+              return { isOk: true };
+            }
+            console.error(result?.error || 'Load data failed');
+            return { isOk: false, error: result?.error || 'Load data failed' };
+          } catch (error) {
+            console.error(error);
+            return { isOk: false, error: error.message };
+          }
+        });
+      },
+      async create(record) {
+        return await withLoading('กำลังบันทึกข้อมูลลูกค้า', async () => {
+          try {
+            const result = await postToServer({ action: 'create', record });
+            if (result && result.ok) {
+              await this.refresh('กำลังอัปเดตข้อมูลล่าสุด');
+              return { isOk: true, data: result.record };
+            }
+            return { isOk: false, error: result?.error || 'Create failed' };
+          } catch (error) {
+            console.error(error);
+            return { isOk: false, error: error.message };
+          }
+        });
+      },
+      async update(record) {
+        return await withLoading('กำลังอัปเดตข้อมูล', async () => {
+          try {
+            const result = await postToServer({ action: 'update', record });
+            if (result && result.ok) {
+              await this.refresh('กำลังโหลดข้อมูลหลังอัปเดต');
+              return { isOk: true, data: result.record };
+            }
+            return { isOk: false, error: result?.error || 'Update failed' };
+          } catch (error) {
+            console.error(error);
+            return { isOk: false, error: error.message };
+          }
+        });
+      },
+      async delete(record) {
+        return await withLoading('กำลังลบข้อมูล', async () => {
+          try {
+            const result = await postToServer({ action: 'delete', id: record.id, type: record.type });
+            if (result && result.ok) {
+              await this.refresh('กำลังโหลดข้อมูลหลังลบ');
+              return { isOk: true };
+            }
+            return { isOk: false, error: result?.error || 'Delete failed' };
+          } catch (error) {
+            console.error(error);
+            return { isOk: false, error: error.message };
+          }
+        });
+      }
+    };
+
+    let allRecords = [];
+    let settingsRecord = null;
+    let customers = [];
+    let settings = {
+      name: '🎪 ระบบบ้านลมสวนสัตว์สไลเดอร์ 🎠',
+      desc: 'สนุกสนาน ปลอดภัย สำหรับเด็กๆ ทุกคน',
+      price30: 40, price60: 60, price120: 100, priceSocks: 20
+    };
+    let isAdminLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+    let currentMonth = new Date();
+    let dashboardFilterMonth = new Date().getMonth();
+    let dashboardFilterYear = new Date().getFullYear();
+    let selectedForm = { gender: '', time: 0, socks: -1, payment: '' };
+    let timerInterval = null;
+    let alertedPlayers = new Set();
+    const dataHandler = {
+      onDataChanged(data) {
+        allRecords = Array.isArray(data) ? data : [];
+        settingsRecord = allRecords.find(d => d.type === 'settings') || null;
+        if (settingsRecord) {
+          settings = {
+            name: settingsRecord.system_name || settings.name,
+            desc: settingsRecord.system_desc || settings.desc,
+            price30: Number(settingsRecord.price_30) || settings.price30,
+            price60: Number(settingsRecord.price_60) || settings.price60,
+            price120: Number(settingsRecord.price_120) || settings.price120,
+            priceSocks: Number(settingsRecord.price_socks) || settings.priceSocks
+          };
+          applySettings();
+        }
+        customers = allRecords.filter(d => d.type === 'customer');
+        populateDashboardFilters();
+        updatePlayingTab();
+        updateDashboard();
+        renderCalendar();
+        renderCustomerList();
+      }
+    };
+
+    async function init() {
+      const result = await window.dataSdk.init(dataHandler);
+      if (!result.isOk) showPopup('❌ เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาตรวจสอบ CONFIG_WEB_APP_URL ในไฟล์ HTML และสิทธิ์ Deploy Web App เป็น Anyone: ' + (result.error || ''), 'error');
+      updateClock();
+      setInterval(updateClock, 1000);
+      if (isAdminLoggedIn) {
+        document.getElementById('adminLogin').classList.add('hidden');
+        document.getElementById('adminPanel').classList.remove('hidden');
+      }
+      startTimerCheck();
+      populateDashboardFilters();
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const options = { timeZone: 'Asia/Bangkok' };
+      const timeStr = now.toLocaleTimeString('th-TH', { ...options, hour12: false });
+      const dateStr = now.toLocaleDateString('th-TH', { ...options, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      document.getElementById('digitalClock').textContent = timeStr;
+      document.getElementById('dateDisplay').textContent = dateStr;
+    }
+
+
+    function sameId(a, b) {
+      return String(a ?? '') === String(b ?? '');
+    }
+
+    function findCustomerById(id) {
+      return customers.find(c => sameId(c.id, id));
+    }
+
+    function findCustomerIndexById(id) {
+      return customers.findIndex(c => sameId(c.id, id));
+    }
+
+    function toNumber(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function formatThaiMoney(value) {
+      return toNumber(value).toLocaleString('th-TH') + ' ฿';
+    }
+
+    function getCustomerDate(customer) {
+      return new Date(customer.created_at || customer.start_time || Date.now());
+    }
+
+    function isInMonthYear(customer, month, year) {
+      const d = getCustomerDate(customer);
+      return d.getMonth() === Number(month) && d.getFullYear() === Number(year);
+    }
+
+    function populateDashboardFilters() {
+      const monthSelect = document.getElementById('dashboardMonth');
+      const yearSelect = document.getElementById('dashboardYear');
+      if (!monthSelect || !yearSelect) return;
+
+      const thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+      monthSelect.innerHTML = thaiMonths.map((name, index) => `<option value="${index}">${name}</option>`).join('');
+
+      const currentYear = new Date().getFullYear();
+      const maxDefaultYear = Math.max(currentYear, 2032); // พ.ศ. 2575
+      const years = new Set([currentYear, dashboardFilterYear]);
+      for (let year = currentYear; year <= maxDefaultYear; year++) years.add(year);
+      customers.forEach(c => {
+        const d = getCustomerDate(c);
+        if (!Number.isNaN(d.getTime())) years.add(d.getFullYear());
+      });
+      yearSelect.innerHTML = [...years].sort((a, b) => b - a).map(year => `<option value="${year}">${year + 543}</option>`).join('');
+      monthSelect.value = String(dashboardFilterMonth);
+      yearSelect.value = String(dashboardFilterYear);
+    }
+
+    function updateDashboardFilter() {
+      const monthSelect = document.getElementById('dashboardMonth');
+      const yearSelect = document.getElementById('dashboardYear');
+      dashboardFilterMonth = Number(monthSelect?.value ?? new Date().getMonth());
+      dashboardFilterYear = Number(yearSelect?.value ?? new Date().getFullYear());
+      updateDashboard();
+    }
+
+    function formatDatetimeLocal(date) {
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const hours = String(d.getHours()).padStart(2, '0');
+      const minutes = String(d.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    let loadingDepth = 0;
+    let loadingTextTimer = null;
+    let loadingSoundReady = false;
+    const loadingMessages = [
+      'กำลังเชื่อมต่อฐานข้อมูล',
+      'กำลังตรวจสอบข้อมูลล่าสุด',
+      'กำลังประมวลผลอย่างปลอดภัย',
+      'กำลังจัดเรียงข้อมูลให้พร้อมใช้งาน'
+    ];
+
+    function playSoftLoadingSound() {
+      if (loadingSoundReady) return;
+      loadingSoundReady = true;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const notes = [523.25, 659.25, 783.99];
+        notes.forEach((freq, index) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.0001, ctx.currentTime + index * 0.07);
+          gain.gain.exponentialRampToValueAtTime(0.025, ctx.currentTime + index * 0.07 + 0.025);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + index * 0.07 + 0.18);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(ctx.currentTime + index * 0.07);
+          osc.stop(ctx.currentTime + index * 0.07 + 0.2);
+        });
+        setTimeout(() => ctx.close?.(), 700);
+      } catch (error) {}
+    }
+
+    function setLoadingMessage(message) {
+      const el = document.getElementById('loadingMessage');
+      if (el) el.textContent = message || loadingMessages[0];
+    }
+
+    function showLoading(message = 'กำลังประมวลผล') {
+      loadingDepth += 1;
+      const screen = document.getElementById('loadingScreen');
+      setLoadingMessage(message);
+      screen?.classList.remove('hidden');
+      playSoftLoadingSound();
+      if (!loadingTextTimer) {
+        let index = 0;
+        loadingTextTimer = setInterval(() => {
+          index = (index + 1) % loadingMessages.length;
+          setLoadingMessage(loadingMessages[index]);
+        }, 1500);
+      }
+    }
+
+    function hideLoading(force = false) {
+      loadingDepth = force ? 0 : Math.max(0, loadingDepth - 1);
+      if (loadingDepth > 0) return;
+      const screen = document.getElementById('loadingScreen');
+      screen?.classList.add('hidden');
+      if (loadingTextTimer) {
+        clearInterval(loadingTextTimer);
+        loadingTextTimer = null;
+      }
+      loadingSoundReady = false;
+    }
+
+    function switchTab(tab) {
+      ['add', 'playing', 'admin'].forEach(t => {
+        const panel = document.getElementById(t + 'Tab');
+        if (panel) panel.classList.add('hidden');
+      });
+      ['add', 'playing'].forEach(t => {
+        const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (!btn) return;
+        btn.classList.remove('tab-active', 'text-white', 'text-gray-600');
+      });
+      const target = document.getElementById(tab + 'Tab');
+      if (target) target.classList.remove('hidden');
+      if (tab === 'add' || tab === 'playing') {
+        const activeBtn = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+        if (activeBtn) {
+          activeBtn.classList.add('tab-active');
+          activeBtn.classList.remove('text-white', 'text-gray-600');
+        }
+      }
+    }
+
+    function openAdminPanel() {
+      switchTab('admin');
+      if (isAdminLoggedIn) {
+        document.getElementById('adminLogin')?.classList.add('hidden');
+        document.getElementById('adminPanel')?.classList.remove('hidden');
+        updateDashboard();
+        loadSettings();
+      } else {
+        document.getElementById('adminLogin')?.classList.remove('hidden');
+        document.getElementById('adminPanel')?.classList.add('hidden');
+        setTimeout(() => document.getElementById('adminPassword')?.focus(), 80);
+      }
+    }
+
+    function selectGender(gender) {
+      selectedForm.gender = gender;
+      document.getElementById('genderMale').classList.toggle('bg-purple-500', gender === 'ชาย');
+      document.getElementById('genderMale').classList.toggle('text-white', gender === 'ชาย');
+      document.getElementById('genderFemale').classList.toggle('bg-pink-500', gender === 'หญิง');
+      document.getElementById('genderFemale').classList.toggle('text-white', gender === 'หญิง');
+      updateSummary();
+    }
+
+    function selectTime(time) {
+      selectedForm.time = time;
+      [30, 60, 120].forEach(t => {
+        document.getElementById('time' + t).classList.toggle('bg-purple-500', t === time);
+        document.getElementById('time' + t).classList.toggle('text-white', t === time);
+      });
+      updateSummary();
+    }
+
+    function selectSocks(socks) {
+      selectedForm.socks = socks;
+      document.getElementById('socks0').classList.toggle('bg-purple-500', socks === 0);
+      document.getElementById('socks0').classList.toggle('text-white', socks === 0);
+      document.getElementById('socks1').classList.toggle('bg-purple-500', socks === 1);
+      document.getElementById('socks1').classList.toggle('text-white', socks === 1);
+      updateSummary();
+    }
+
+    function selectPayment(payment) {
+      selectedForm.payment = payment;
+      document.getElementById('payCash').classList.toggle('bg-green-500', payment === 'เงินสด');
+      document.getElementById('payCash').classList.toggle('text-white', payment === 'เงินสด');
+      document.getElementById('payScan').classList.toggle('bg-blue-500', payment === 'สแกนจ่าย');
+      document.getElementById('payScan').classList.toggle('text-white', payment === 'สแกนจ่าย');
+      updateSummary();
+    }
+
+    function getPlayPrice(time) {
+      if (time === 30) return settings.price30;
+      if (time === 60) return settings.price60;
+      if (time === 120) return settings.price120;
+      return 0;
+    }
+
+    function updateSummary() {
+      const playPrice = getPlayPrice(selectedForm.time);
+      const socksPrice = selectedForm.socks > 0 ? settings.priceSocks : 0;
+      const total = playPrice + socksPrice;
+      document.getElementById('summary').classList.toggle('hidden', selectedForm.time === 0);
+      document.getElementById('summaryPlayPrice').textContent = playPrice + ' บาท';
+      document.getElementById('summarySocksPrice').textContent = socksPrice + ' บาท';
+      document.getElementById('summaryTotal').textContent = total + ' บาท';
+    }
+
+    async function saveCustomer() {
+      const nickname = document.getElementById('nickname').value.trim();
+      if (!nickname || !selectedForm.gender || !selectedForm.time || selectedForm.socks < 0 || !selectedForm.payment) {
+        showPopup('❌ กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+        return;
+      }
+      if (customers.length >= 999) {
+        showPopup('❌ จำนวนข้อมูลเต็มแล้ว', 'error');
+        return;
+      }
+
+      showLoading();
+      const now = new Date();
+      const endTime = new Date(now.getTime() + selectedForm.time * 60000);
+      const playPrice = getPlayPrice(selectedForm.time);
+      const socksPrice = selectedForm.socks * settings.priceSocks;
+
+      const customer = {
+        id: Date.now().toString(),
+        type: 'customer',
+        nickname: nickname,
+        gender: selectedForm.gender,
+        play_time: selectedForm.time,
+        play_price: playPrice,
+        socks: selectedForm.socks,
+        socks_price: socksPrice,
+        payment_method: selectedForm.payment,
+        total_price: playPrice + socksPrice,
+        start_time: now.toISOString(),
+        end_time: endTime.toISOString(),
+        status: 'playing',
+        created_at: now.toISOString()
+      };
+
+      const result = await window.dataSdk.create(customer);
+      hideLoading();
+      if (result.isOk) {
+        showCustomerDetails(customer);
+        resetForm();
+      } else {
+        showPopup('❌ เกิดข้อผิดพลาด: กรุณาตรวจสอบ CONFIG_WEB_APP_URL และสิทธิ์ Deploy Web App', 'error');
+      }
+    }
+
+    function showCustomerDetails(customer) {
+      const content = `
+        <div class="text-center">
+          <div class="text-4xl mb-3">${customer.gender === 'ชาย' ? '👦' : '👧'}</div>
+          <h3 class="text-xl font-bold text-purple-700 mb-3">${customer.nickname}</h3>
+          <div class="text-left space-y-2 bg-purple-50 rounded-lg p-3 mb-3 text-xs md:text-sm">
+            <p><span class="font-medium">⏱️ เวลาเล่น:</span> ${customer.play_time} นาที</p>
+            <p><span class="font-medium">💰 ค่าเล่น:</span> ${customer.play_price} บาท</p>
+            <p><span class="font-medium">🧦 ถุงเท้า:</span> ${customer.socks > 0 ? 'ซื้อ 1 คู่' : 'ไม่ซื้อ'}</p>
+            <p><span class="font-medium">💳 ชำระ:</span> ${customer.payment_method}</p>
+            <p class="font-bold border-t pt-2">💵 รวม: ${customer.total_price} บาท</p>
+          </div>
+          <button onclick="closePopup(); switchTab('playing');" class="w-full btn-primary text-white py-2 rounded-lg font-bold text-xs md:text-sm">
+            ✅ ไปหน้ากำลังเล่น
+          </button>
+        </div>
+      `;
+      document.getElementById('popupContent').innerHTML = content;
+      document.getElementById('popupModal').classList.remove('hidden');
+    }
+
+    function resetForm() {
+      document.getElementById('nickname').value = '';
+      selectedForm = { gender: '', time: 0, socks: -1, payment: '' };
+      ['genderMale', 'genderFemale', 'time30', 'time60', 'time120', 'socks0', 'socks1', 'payCash', 'payScan'].forEach(id => {
+        document.getElementById(id).classList.remove('bg-purple-500', 'bg-pink-500', 'bg-green-500', 'bg-blue-500', 'text-white');
+      });
+      document.getElementById('summary').classList.add('hidden');
+    }
+
+    function updatePlayingTab() {
+      const now = new Date();
+      const today = now.toDateString();
+      const playing = customers.filter(c => c.status === 'playing');
+      const todayCustomers = customers.filter(c => new Date(c.created_at).toDateString() === today);
+      const todaySocks = todayCustomers.reduce((sum, c) => sum + (c.socks || 0), 0);
+
+      document.getElementById('statPlaying').textContent = playing.length;
+      document.getElementById('statToday').textContent = todayCustomers.length;
+      document.getElementById('statSocks').textContent = todaySocks;
+      renderPlayerCards(playing);
+    }
+
+    function renderPlayerCards(playing) {
+      const container = document.getElementById('playerCards');
+      if (playing.length === 0) {
+        container.innerHTML = '<div class="glass rounded-lg p-4 text-center text-gray-400 col-span-full text-sm"><div class="text-3xl mb-2">🎈</div><p>ยังไม่มีผู้เล่น</p></div>';
+        return;
+      }
+
+      const sorted = [...playing].sort((a, b) => new Date(a.end_time).getTime() - new Date(b.end_time).getTime());
+      container.innerHTML = sorted.map(player => {
+        const now = new Date();
+        const endTime = new Date(player.end_time);
+        const startTime = new Date(player.start_time);
+        const totalMs = endTime - startTime;
+        const remainingMs = Math.max(0, endTime - now);
+        const progress = Math.max(0, Math.min(100, ((totalMs - remainingMs) / totalMs) * 100));
+        const isExpired = remainingMs <= 0;
+        const isWarning = remainingMs > 0 && remainingMs <= 5 * 60 * 1000;
+
+        const formatTime = (date) => date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+        const formatRemaining = (ms) => {
+          if (ms <= 0) return '00:00:00';
+          const hours = Math.floor(ms / 3600000);
+          const mins = Math.floor((ms % 3600000) / 60000);
+          const secs = Math.floor((ms % 60000) / 1000);
+          return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        };
+
+        let cardClass = 'glass';
+        if (isExpired) cardClass = 'time-critical text-white';
+        else if (isWarning) cardClass = 'time-warning text-white';
+
+        return `
+          <div class="${cardClass} rounded-lg p-3 card-shadow ${isExpired ? 'pulse-alert' : ''}" data-player-id="${player.id}">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xl">${player.gender === 'ชาย' ? '👦' : '👧'}</span>
+              <span class="text-xs ${isExpired || isWarning ? 'text-white' : 'text-gray-500'}">${player.play_time}นาที</span>
+            </div>
+            <h4 class="font-bold truncate text-sm">${player.nickname}</h4>
+            <div class="text-xs mt-2 space-y-1">
+              <div>🕐 ${formatTime(startTime)}</div>
+              <div>🕐 ${formatTime(endTime)}</div>
+              <div class="font-bold ${isExpired ? 'text-yellow-300' : ''}">⏳ ${formatRemaining(remainingMs)}</div>
+            </div>
+            <div class="mt-2 bg-gray-200 rounded-full h-1 overflow-hidden">
+              <div class="h-full ${isExpired ? 'bg-red-300' : isWarning ? 'bg-yellow-300' : 'bg-purple-500'} progress-bar" style="width: ${progress}%"></div>
+            </div>
+            <div class="mt-2 flex gap-2">
+              <button onclick="showPlayerDetail('${player.id}')" class="flex-1 text-xs py-1 ${isExpired || isWarning ? 'bg-white/20' : 'bg-purple-100'} rounded-lg font-medium hover:opacity-80">📋 ดู</button>
+              <button onclick="confirmComplete('${player.id}')" class="flex-1 text-xs py-1 ${isExpired ? 'bg-yellow-400 text-black' : isWarning ? 'bg-white/20' : 'bg-green-100'} rounded-lg font-medium hover:opacity-80">✅</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function showPlayerDetail(id) {
+      const player = findCustomerById(id);
+      if (!player) return;
+
+      const formatDate = (dateStr) => new Date(dateStr).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const content = `
+        <div class="text-center">
+          <div class="text-4xl mb-3">${player.gender === 'ชาย' ? '👦' : '👧'}</div>
+          <h3 class="text-lg font-bold text-purple-700 mb-3">${player.nickname}</h3>
+          <div class="text-left space-y-2 bg-purple-50 rounded-lg p-3 mb-3 text-xs">
+            <p><span class="font-medium">👤 เพศ:</span> ${player.gender}</p>
+            <p><span class="font-medium">⏱️ เวลา:</span> ${player.play_time} นาที</p>
+            <p><span class="font-medium">💰 ค่าเล่น:</span> ${player.play_price} บาท</p>
+            <p><span class="font-medium">🧦 ถุงเท้า:</span> ${player.socks > 0 ? 'ซื้อ 1 คู่ (' + player.socks_price + '฿)' : 'ไม่ซื้อ'}</p>
+            <p><span class="font-medium">💳 ชำระ:</span> ${player.payment_method}</p>
+            <p><span class="font-medium">🕐 เริ่ม:</span> ${formatDate(player.start_time)}</p>
+            <p><span class="font-medium">🕐 หมด:</span> ${formatDate(player.end_time)}</p>
+            <p class="font-bold border-t pt-2">💵 รวม: ${player.total_price} บาท</p>
+          </div>
+          <button onclick="closePopup()" class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-xs">ปิด</button>
+        </div>
+      `;
+      document.getElementById('popupContent').innerHTML = content;
+      document.getElementById('popupModal').classList.remove('hidden');
+    }
+
+    function confirmComplete(id) {
+      const player = findCustomerById(id);
+      if (!player) return;
+      const content = `
+        <div class="text-center">
+          <div class="text-4xl mb-3">✅</div>
+          <h3 class="text-lg font-bold text-purple-700 mb-2">ยืนยันเสร็จสิ้น?</h3>
+          <p class="text-sm mb-4"><strong>${player.nickname}</strong></p>
+          <div class="flex gap-2">
+            <button onclick="closePopup()" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-xs">ยกเลิก</button>
+            <button onclick="completePlayer('${id}')" class="flex-1 btn-primary text-white py-2 rounded-lg font-bold text-xs">ยืนยัน</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('popupContent').innerHTML = content;
+      document.getElementById('popupModal').classList.remove('hidden');
+    }
+
+    async function completePlayer(id) {
+      closePopup();
+      showLoading();
+      const index = findCustomerIndexById(id);
+      if (index === -1) {
+        hideLoading();
+        showPopup('❌ ไม่พบข้อมูลลูกค้า', 'error');
+        return;
+      }
+      const player = { ...customers[index], status: 'completed', updated_at: new Date().toISOString() };
+      alertedPlayers.delete(String(id));
+      const result = await window.dataSdk.update(player);
+      hideLoading();
+      if (result.isOk) {
+        customers[index] = player;
+        updatePlayingTab();
+        renderCustomerList();
+        updateDashboard();
+        renderCalendar();
+        showPopup('✅ เล่นเสร็จสิ้นเรียบร้อย!', 'success');
+      } else {
+        showPopup('❌ เกิดข้อผิดพลาด: ' + (result.error || ''), 'error');
+      }
+    }
+
+        function startTimerCheck() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        const playing = customers.filter(c => c.status === 'playing');
+        const now = new Date();
+        playing.forEach(player => {
+          const endTime = new Date(player.end_time);
+          if (now >= endTime && !alertedPlayers.has(player.id)) {
+            alertedPlayers.add(player.id);
+            showTimeAlert(player);
+          }
+        });
+        updatePlayingTab();
+      }, 1000);
+    }
+
+    function showTimeAlert(player) {
+      document.getElementById('alertPlayerName').textContent = player.nickname + ' หมดเวลาแล้ว!';
+      document.getElementById('timeAlertModal').classList.remove('hidden');
+      try {
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2eleA0PPp/Y46FSAAA/ntrfpXYQCD6e2d+peRAKPp7Z3qx4Dwo+ntnfrXkODT2e2d+ueQ8NPp7Z3697Dw0+ntnfr3sODT6e2d+vew8NPp7Z369+Dg4+ntnfsH0ODj6e2d+wfQ4OPp7Z37B9Dg4+ntnes30ODj6e2d60fQ4OPp7Z3rR9Dg4+ntnetX0ODj6e2d61fg4OPp7Z3rV+Dg4+ntnftX4ODj6e2d+1fg4OPp7Z37V+Dg4=');
+        audio.play().catch(() => {});
+      } catch(e) {}
+    }
+
+    function closeTimeAlert() {
+      document.getElementById('timeAlertModal').classList.add('hidden');
+    }
+
+    function loginAdmin() {
+      const password = document.getElementById('adminPassword').value;
+      if (password === '3304') {
+        isAdminLoggedIn = true;
+        localStorage.setItem('adminLoggedIn', 'true');
+        document.getElementById('adminLogin').classList.add('hidden');
+        document.getElementById('adminPanel').classList.remove('hidden');
+        document.getElementById('adminPassword').value = '';
+        updateDashboard();
+        loadSettings();
+      } else {
+        showPopup('❌ รหัสผ่านไม่ถูกต้อง', 'error');
+      }
+    }
+
+    function logoutAdmin() {
+      isAdminLoggedIn = false;
+      localStorage.removeItem('adminLoggedIn');
+      document.getElementById('adminLogin').classList.remove('hidden');
+      document.getElementById('adminPanel').classList.add('hidden');
+    }
+
+    function switchAdminPage(page) {
+      ['dashboard', 'calendar', 'manage', 'settings'].forEach(p => {
+        document.getElementById('admin' + p.charAt(0).toUpperCase() + p.slice(1)).classList.add('hidden');
+        document.getElementById('adminNav' + p.charAt(0).toUpperCase() + p.slice(1)).classList.remove('btn-primary', 'text-white');
+        document.getElementById('adminNav' + p.charAt(0).toUpperCase() + p.slice(1)).classList.add('bg-gray-200', 'text-gray-700');
+      });
+      document.getElementById('admin' + page.charAt(0).toUpperCase() + page.slice(1)).classList.remove('hidden');
+      document.getElementById('adminNav' + page.charAt(0).toUpperCase() + page.slice(1)).classList.add('btn-primary', 'text-white');
+      document.getElementById('adminNav' + page.charAt(0).toUpperCase() + page.slice(1)).classList.remove('bg-gray-200', 'text-gray-700');
+      if (page === 'calendar') renderCalendar();
+      if (page === 'manage') renderCustomerList();
+    }
+
+    function updateDashboard() {
+      populateDashboardFilters();
+      const now = new Date();
+      const today = now.toDateString();
+      const selectedMonth = Number(document.getElementById('dashboardMonth')?.value ?? dashboardFilterMonth);
+      const selectedYear = Number(document.getElementById('dashboardYear')?.value ?? dashboardFilterYear);
+      dashboardFilterMonth = selectedMonth;
+      dashboardFilterYear = selectedYear;
+
+      const todayCustomers = customers.filter(c => getCustomerDate(c).toDateString() === today);
+      const monthCustomers = customers.filter(c => isInMonthYear(c, selectedMonth, selectedYear));
+      const yearCustomers = customers.filter(c => getCustomerDate(c).getFullYear() === selectedYear);
+
+      const todayIncome = todayCustomers.reduce((sum, c) => sum + toNumber(c.total_price), 0);
+      const monthIncome = monthCustomers.reduce((sum, c) => sum + toNumber(c.total_price), 0);
+      const yearIncome = yearCustomers.reduce((sum, c) => sum + toNumber(c.total_price), 0);
+
+      document.getElementById('dashIncomeToday').textContent = formatThaiMoney(todayIncome);
+      document.getElementById('dashIncomeMonth').textContent = formatThaiMoney(monthIncome);
+      document.getElementById('dashIncomeYear').textContent = formatThaiMoney(yearIncome);
+      document.getElementById('dashTotalCustomers').textContent = monthCustomers.length;
+
+      const avgPerCustomer = monthCustomers.length > 0 ? Math.round(monthIncome / monthCustomers.length) : 0;
+      document.getElementById('avgPerCustomer').textContent = formatThaiMoney(avgPerCustomer);
+
+      const daysWithCustomers = [...new Set(monthCustomers.map(c => getCustomerDate(c).toDateString()))].length;
+      const avgPerDay = daysWithCustomers > 0 ? (monthCustomers.length / daysWithCustomers).toFixed(1) : '0';
+      document.getElementById('avgPerDay').textContent = avgPerDay + ' คน';
+
+      const avgPlayTime = monthCustomers.length > 0 ? Math.round(monthCustomers.reduce((sum, c) => sum + toNumber(c.play_time), 0) / monthCustomers.length) : 0;
+      const avgPlayEl = document.getElementById('avgPlayTime');
+      if (avgPlayEl) avgPlayEl.textContent = avgPlayTime + ' นาที';
+
+      const timeStats = {};
+      monthCustomers.forEach(c => {
+        const hour = getCustomerDate(c).getHours();
+        const label = `${String(hour).padStart(2, '0')}:00 - ${String(hour).padStart(2, '0')}:59 น.`;
+        timeStats[label] = (timeStats[label] || 0) + 1;
+      });
+      const sortedTimes = Object.entries(timeStats).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      document.getElementById('popularTimes').innerHTML = sortedTimes.length > 0
+        ? sortedTimes.map(([label, count], index) => `<div class="flex justify-between"><span>${index + 1}. ${label}</span><strong>${count} คน</strong></div>`).join('')
+        : '<div class="text-gray-400 text-xs">ยังไม่มีข้อมูล</div>';
+
+      const chartData = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toDateString();
+        const dayCustomers = customers.filter(c => getCustomerDate(c).toDateString() === dateStr);
+        const income = dayCustomers.reduce((sum, c) => sum + toNumber(c.total_price), 0);
+        chartData.push({ day: date.getDate(), income });
+      }
+      const maxIncome = Math.max(...chartData.map(d => d.income), 1);
+      document.getElementById('incomeChart').innerHTML = chartData.map(d => `
+        <div class="flex flex-col items-center flex-1 h-full justify-end">
+          <div class="w-full bg-purple-200 rounded-t relative min-h-[4px]" style="height: ${Math.max((d.income / maxIncome) * 100, d.income > 0 ? 6 : 0)}%">
+            <div class="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-bold text-purple-700">${d.income}</div>
+          </div>
+          <div class="text-xs mt-1">${d.day}</div>
+        </div>
+      `).join('');
+
+      const income30 = monthCustomers.filter(c => toNumber(c.play_time) === 30).reduce((sum, c) => sum + toNumber(c.play_price), 0);
+      const income60 = monthCustomers.filter(c => toNumber(c.play_time) === 60).reduce((sum, c) => sum + toNumber(c.play_price), 0);
+      const income120 = monthCustomers.filter(c => toNumber(c.play_time) === 120).reduce((sum, c) => sum + toNumber(c.play_price), 0);
+      const incomeSocks = monthCustomers.reduce((sum, c) => sum + toNumber(c.socks_price), 0);
+      drawPieChart(income30, income60, income120, incomeSocks);
+
+      const socksTodayCount = todayCustomers.reduce((sum, c) => sum + toNumber(c.socks), 0);
+      const socksMonthCount = monthCustomers.reduce((sum, c) => sum + toNumber(c.socks), 0);
+      const socksIncome = monthCustomers.reduce((sum, c) => sum + toNumber(c.socks_price), 0);
+      document.getElementById('socksTodayStat').textContent = socksTodayCount.toLocaleString('th-TH');
+      document.getElementById('socksMonthStat').textContent = socksMonthCount.toLocaleString('th-TH');
+      document.getElementById('socksIncomeStat').textContent = formatThaiMoney(socksIncome);
+    }
+
+    function drawPieChart(income30, income60, income120, incomeSocks) {
+      const total = income30 + income60 + income120 + incomeSocks;
+      if (total === 0) {
+        document.getElementById('incomeChartContainer').innerHTML = '<div class="text-gray-400 text-xs">ยังไม่มีข้อมูล</div>';
+        document.getElementById('incomeChartLegend').innerHTML = '<div class="text-gray-400 text-xs">ยังไม่มีข้อมูล</div>';
+        return;
+      }
+
+      const colors = ['#667eea', '#764ba2', '#f093fb', '#ffa502'];
+      const data = [
+        { label: '30 นาที', value: income30, color: colors[0] },
+        { label: '1 ชั่วโมง', value: income60, color: colors[1] },
+        { label: '2 ชั่วโมง', value: income120, color: colors[2] },
+        { label: 'ถุงเท้า', value: incomeSocks, color: colors[3] }
+      ].filter(d => d.value > 0);
+
+      // Draw pie chart using SVG
+      const size = 200;
+      const radius = 80;
+      const cx = size / 2;
+      const cy = size / 2;
+      let currentAngle = -Math.PI / 2;
+      let svgPath = '';
+
+      data.forEach(item => {
+        const sliceAngle = (item.value / total) * 2 * Math.PI;
+        const x1 = cx + radius * Math.cos(currentAngle);
+        const y1 = cy + radius * Math.sin(currentAngle);
+        const x2 = cx + radius * Math.cos(currentAngle + sliceAngle);
+        const y2 = cy + radius * Math.sin(currentAngle + sliceAngle);
+
+        const largeArc = sliceAngle > Math.PI ? 1 : 0;
+        const path = `M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+        svgPath += `<path d="${path}" fill="${item.color}" stroke="white" stroke-width="2" />`;
+
+        currentAngle += sliceAngle;
+      });
+
+      document.getElementById('incomeChartContainer').innerHTML = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${svgPath}</svg>`;
+
+      // Legend
+      const legendHtml = data.map((item, index) => {
+        const percent = ((item.value / total) * 100).toFixed(1);
+        return `
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 rounded-full" style="background-color: ${item.color}"></div>
+            <span class="flex-1">${item.label}</span>
+            <span class="font-bold">${item.value.toLocaleString()} ฿</span>
+            <span class="text-gray-600">(${percent}%)</span>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('incomeChartLegend').innerHTML = legendHtml;
+    }
+
+    function renderCalendar() {
+      const year = currentMonth.getFullYear();
+      const month = currentMonth.getMonth();
+      const thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+      document.getElementById('calendarTitle').textContent = `${thaiMonths[month]} ${year + 543}`;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      let html = '';
+      for (let i = 0; i < firstDay; i++) html += '<div></div>';
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = new Date(year, month, day).toDateString();
+        const dayCustomers = customers.filter(c => new Date(c.created_at).toDateString() === dateStr);
+        const hasData = dayCustomers.length > 0;
+        const isToday = new Date().toDateString() === dateStr;
+        html += `
+          <div onclick="showDayDetail('${dateStr}')" class="aspect-square flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all text-xs
+            ${isToday ? 'bg-purple-500 text-white' : hasData ? 'bg-purple-100 hover:bg-purple-200' : 'hover:bg-gray-100'}">
+            <span class="font-medium">${day}</span>
+            ${hasData ? `<span class="text-xs ${isToday ? 'text-purple-200' : 'text-purple-600'}">${dayCustomers.length}</span>` : ''}
+          </div>
+        `;
+      }
+      document.getElementById('calendarDays').innerHTML = html;
+
+      // Update details table
+      renderCalendarDetailsTable();
+    }
+
+    function renderCalendarDetailsTable() {
+      const year = currentMonth.getFullYear();
+      const month = currentMonth.getMonth();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      
+      let rows = '';
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = new Date(year, month, day).toDateString();
+        const dayCustomers = customers.filter(c => getCustomerDate(c).toDateString() === dateStr);
+        if (dayCustomers.length === 0) continue;
+        
+        const totalIncome = dayCustomers.reduce((sum, c) => sum + toNumber(c.total_price), 0);
+        const socksIncome = dayCustomers.reduce((sum, c) => sum + toNumber(c.socks_price), 0);
+        const totalSocks = dayCustomers.reduce((sum, c) => sum + toNumber(c.socks), 0);
+        const cashAmount = dayCustomers.filter(c => c.payment_method === 'เงินสด').reduce((sum, c) => sum + toNumber(c.total_price), 0);
+        const scanAmount = dayCustomers.filter(c => c.payment_method === 'สแกนจ่าย').reduce((sum, c) => sum + toNumber(c.total_price), 0);
+        const date = new Date(year, month, day);
+        const dateFormatted = date.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+        
+        rows += `
+          <tr class="border-b hover:bg-purple-50 cursor-pointer" onclick="showDayDetail('${dateStr}')">
+            <td class="p-2">${dateFormatted}</td>
+            <td class="p-2 text-right font-medium">${dayCustomers.length}</td>
+            <td class="p-2 text-right font-bold text-green-600">${totalIncome.toLocaleString('th-TH')}</td>
+            <td class="p-2 text-right text-orange-600">${socksIncome.toLocaleString('th-TH')}</td>
+            <td class="p-2 text-right">${totalSocks}</td>
+            <td class="p-2 text-right text-green-600">${cashAmount.toLocaleString('th-TH')}</td>
+            <td class="p-2 text-right text-blue-600">${scanAmount.toLocaleString('th-TH')}</td>
+          </tr>
+        `;
+      }
+      document.getElementById('calendarTableBody').innerHTML = rows || '<tr><td colspan="7" class="p-4 text-center text-gray-400 text-xs">ไม่มีข้อมูล</td></tr>';
+    }
+
+    function changeMonth(delta) {
+      currentMonth.setMonth(currentMonth.getMonth() + delta);
+      renderCalendar();
+    }
+
+    function showDayDetail(dateStr) {
+      const dayCustomers = customers.filter(c => getCustomerDate(c).toDateString() === dateStr);
+      if (dayCustomers.length === 0) {
+        showPopup('📅 ไม่มีข้อมูลในวันนี้', 'info');
+        return;
+      }
+
+      const totalIncome = dayCustomers.reduce((sum, c) => sum + toNumber(c.total_price), 0);
+      const totalCustomers = dayCustomers.length;
+      const socksIncome = dayCustomers.reduce((sum, c) => sum + toNumber(c.socks_price), 0);
+      const totalSocks = dayCustomers.reduce((sum, c) => sum + toNumber(c.socks), 0);
+      const cashAmount = dayCustomers.filter(c => c.payment_method === 'เงินสด').reduce((sum, c) => sum + toNumber(c.total_price), 0);
+      const scanAmount = dayCustomers.filter(c => c.payment_method === 'สแกนจ่าย').reduce((sum, c) => sum + toNumber(c.total_price), 0);
+
+      const date = new Date(dateStr);
+      const content = `
+        <div class="text-center">
+          <div class="text-3xl mb-3">📅</div>
+          <h3 class="text-lg font-bold text-purple-700 mb-3">${date.toLocaleDateString('th-TH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h3>
+          <div class="text-left space-y-1 bg-purple-50 rounded-lg p-3 mb-3 text-xs">
+            <div class="flex justify-between"><span>📅 วันที่:</span><strong>${date.toLocaleDateString('th-TH')}</strong></div>
+            <div class="flex justify-between"><span>👥 จำนวนลูกค้า:</span><strong>${totalCustomers} คน</strong></div>
+            <div class="flex justify-between border-t pt-2"><span>💰 รายได้รวม:</span><strong class="text-green-600">${totalIncome.toLocaleString('th-TH')} ฿</strong></div>
+            <div class="flex justify-between"><span>🧦 รายได้ถุงเท้า:</span><strong class="text-orange-600">${socksIncome.toLocaleString('th-TH')} ฿</strong></div>
+            <div class="flex justify-between"><span>🧦 จำนวนถุงเท้า:</span><strong>${totalSocks} คู่</strong></div>
+            <div class="flex justify-between"><span>💵 รายได้ประเภทเงินสด:</span><strong class="text-green-600">${cashAmount.toLocaleString('th-TH')} ฿</strong></div>
+            <div class="flex justify-between"><span>📱 รายได้ประเภทสแกน:</span><strong class="text-blue-600">${scanAmount.toLocaleString('th-TH')} ฿</strong></div>
+          </div>
+          <button onclick="closePopup()" class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-xs">ปิด</button>
+        </div>
+      `;
+      document.getElementById('popupContent').innerHTML = content;
+      document.getElementById('popupModal').classList.remove('hidden');
+    }
+
+    function renderCustomerList() {
+      const searchTerm = document.getElementById('searchCustomer')?.value?.toLowerCase() || '';
+      const filterStatus = document.getElementById('filterStatus')?.value || 'all';
+      const fromDateStr = document.getElementById('filterFromDate')?.value;
+      const toDateStr = document.getElementById('filterToDate')?.value;
+      
+      let filtered = customers.filter(c => {
+        const matchesSearch = c.nickname.toLowerCase().includes(searchTerm);
+        const matchesStatus = filterStatus === 'all' || c.status === filterStatus;
+        
+        let matchesDate = true;
+        if (fromDateStr || toDateStr) {
+          const customerDate = new Date(c.created_at);
+          if (fromDateStr) {
+            const fromDate = new Date(fromDateStr);
+            matchesDate = matchesDate && customerDate >= fromDate;
+          }
+          if (toDateStr) {
+            const toDate = new Date(toDateStr);
+            toDate.setHours(23, 59, 59, 999);
+            matchesDate = matchesDate && customerDate <= toDate;
+          }
+        }
+        
+        return matchesSearch && matchesStatus && matchesDate;
+      });
+      
+      filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      const container = document.getElementById('customerList');
+      if (!container) return;
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-400 py-8 text-xs">ไม่พบข้อมูล</div>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(c => {
+        const date = new Date(c.created_at).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        const statusBadge = c.status === 'playing' ? '🎮 เล่น' : '✅ เสร็จ';
+        const statusColor = c.status === 'playing' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700';
+        return `
+          <div class="bg-white rounded-lg p-2 flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-2 flex-1 min-w-0">
+              <span class="text-lg">${c.gender === 'ชาย' ? '👦' : '👧'}</span>
+              <div class="flex-1 min-w-0">
+                <div class="font-medium text-xs md:text-sm">${c.nickname}</div>
+                <div class="text-xs text-gray-500">${date} • ${c.total_price}฿</div>
+                <div class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusColor}">${statusBadge}</div>
+              </div>
+            </div>
+            <div class="flex gap-1">
+              <button onclick="editCustomer('${c.id}')" data-action="edit" data-id="${c.id}" class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs hover:bg-blue-200">✏️ แก้ไข</button>
+              <button onclick="editCustomerStatus('${c.id}')" data-action="status" data-id="${c.id}" class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs hover:bg-yellow-200">🔄 สถานะ</button>
+              <button onclick="confirmDeleteCustomer('${c.id}')" data-action="delete" data-id="${c.id}" class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200">🗑️ ลบ</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterCustomers() {
+      renderCustomerList();
+    }
+
+    document.getElementById('searchCustomer')?.addEventListener('input', filterCustomers);
+
+    function editCustomer(id) {
+      const customer = findCustomerById(id);
+      if (!customer) return;
+
+      const content = `
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="text-base md:text-lg font-bold text-purple-700 flex items-center gap-2"><span>✏️</span> แก้ไขข้อมูลลูกค้า</h2>
+            <p class="text-xs text-gray-600 mt-1">${customer.nickname}</p>
+          </div>
+          <button onclick="closePopup()" class="w-9 h-9 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 font-bold">×</button>
+        </div>
+        <div class="edit-grid">
+          <div class="md:col-span-2">
+            <label class="block text-xs text-gray-700 font-medium mb-1">ชื่อเล่น</label>
+            <input type="text" id="editNickname" value="${customer.nickname}" placeholder="กรอกชื่อเล่น..." class="w-full px-3 py-2 rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:outline-none transition-all text-xs md:text-sm">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-700 font-medium mb-1">เพศ</label>
+            <div class="flex gap-2">
+              <button onclick="setEditGender('ชาย')" id="editGenderMale" class="flex-1 py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs">👦 ชาย</button>
+              <button onclick="setEditGender('หญิง')" id="editGenderFemale" class="flex-1 py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs">👧 หญิง</button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-700 font-medium mb-1">สถานะ</label>
+            <div class="flex gap-2">
+              <button onclick="setEditStatus('playing')" id="editStatusPlaying" class="flex-1 py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs">🎮 เล่น</button>
+              <button onclick="setEditStatus('completed')" id="editStatusCompleted" class="flex-1 py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs">✅ เสร็จ</button>
+            </div>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-xs text-gray-700 font-medium mb-1">เวลาเล่น</label>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="setEditTime(30)" id="editTime30" class="py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs"><div>⏱️ 30 นาที</div><div class="text-purple-600 font-bold text-xs" id="editPrice30Display">40 บาท</div></button>
+              <button onclick="setEditTime(60)" id="editTime60" class="py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs"><div>⏱️ 1 ชั่วโมง</div><div class="text-purple-600 font-bold text-xs" id="editPrice60Display">60 บาท</div></button>
+              <button onclick="setEditTime(120)" id="editTime120" class="py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs"><div>⏱️ 2 ชั่วโมง</div><div class="text-purple-600 font-bold text-xs" id="editPrice120Display">100 บาท</div></button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-700 font-medium mb-1">ถุงเท้าเด็ก</label>
+            <div class="flex gap-2">
+              <button onclick="setEditSocks(0)" id="editSocks0" class="flex-1 py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs">🧦 ไม่ซื้อ</button>
+              <button onclick="setEditSocks(1)" id="editSocks1" class="flex-1 py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs">🧦 ซื้อ 1 คู่</button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-700 font-medium mb-1">วิธีชำระเงิน</label>
+            <div class="flex gap-2">
+              <button onclick="setEditPayment('เงินสด')" id="editPayCash" class="flex-1 py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs">💵 เงินสด</button>
+              <button onclick="setEditPayment('สแกนจ่าย')" id="editPayScan" class="flex-1 py-2 rounded-lg border-2 border-purple-200 font-medium transition-all hover:border-purple-500 text-xs">📱 สแกนจ่าย</button>
+            </div>
+          </div>
+          <div class="bg-purple-50 rounded-lg p-3 border-2 border-purple-200">
+            <h4 class="font-bold text-purple-700 mb-2 text-xs">💰 สรุปยอดชำระ</h4>
+            <div class="space-y-1 text-xs">
+              <div class="flex justify-between"><span>ค่าเล่น:</span><span id="editSummaryPlayPrice">40 บาท</span></div>
+              <div class="flex justify-between"><span>ค่าถุงเท้า:</span><span id="editSummarySocksPrice">0 บาท</span></div>
+              <div class="flex justify-between font-bold border-t pt-1 mt-1"><span>รวม:</span><span id="editSummaryTotal" class="text-purple-600">40 บาท</span></div>
+            </div>
+          </div>
+          <div class="edit-actions flex gap-2 pt-2 border-t">
+            <button onclick="closePopup()" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-medium text-xs md:text-sm">ยกเลิก</button>
+            <button onclick="saveEditCustomer('${id}')" class="flex-1 btn-primary text-white py-2 rounded-lg font-medium text-xs md:text-sm">💾 บันทึก</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('popupContent').innerHTML = content;
+      document.getElementById('popupBox')?.classList.add('edit-mode');
+      document.getElementById('popupModal').classList.remove('hidden');
+      document.getElementById('editPrice30Display').textContent = settings.price30 + ' บาท';
+      document.getElementById('editPrice60Display').textContent = settings.price60 + ' บาท';
+      document.getElementById('editPrice120Display').textContent = settings.price120 + ' บาท';
+      setTimeout(() => {
+        setEditGender(customer.gender);
+        setEditSocks(toNumber(customer.socks));
+        setEditPayment(customer.payment_method);
+        setEditStatus(customer.status);
+        setEditTime(toNumber(customer.play_time || 30));
+      }, 0);
+    }
+
+    function setEditTime(time) {
+      [30, 60, 120].forEach(t => {
+        const btn = document.getElementById('editTime' + t);
+        if (btn) {
+          btn.classList.toggle('bg-purple-500', t === time);
+          btn.classList.toggle('text-white', t === time);
+          btn.classList.toggle('border-purple-500', t === time);
+          btn.classList.toggle('border-purple-200', t !== time);
+        }
+      });
+      window.editTime = time;
+      updateEditSummary();
+    }
+
+    function updateEditSummary() {
+      const playPrice = getPlayPrice(window.editTime || 30);
+      const socksPrice = (window.editSocks || 0) > 0 ? settings.priceSocks : 0;
+      const total = playPrice + socksPrice;
+      
+      if (document.getElementById('editSummaryPlayPrice')) {
+        document.getElementById('editSummaryPlayPrice').textContent = playPrice + ' บาท';
+        document.getElementById('editSummarySocksPrice').textContent = socksPrice + ' บาท';
+        document.getElementById('editSummaryTotal').textContent = total + ' บาท';
+      }
+    }
+
+    let editingCustomerId = null;
+
+    function setEditGender(gender) {
+      document.getElementById('editGenderMale').classList.remove('bg-purple-500', 'text-white', 'border-purple-500');
+      document.getElementById('editGenderFemale').classList.remove('bg-pink-500', 'text-white', 'border-purple-500');
+      document.getElementById('editGenderMale').classList.add('border-purple-200');
+      document.getElementById('editGenderFemale').classList.add('border-purple-200');
+      
+      if (gender === 'ชาย') {
+        document.getElementById('editGenderMale').classList.add('bg-purple-500', 'text-white', 'border-purple-500');
+        document.getElementById('editGenderMale').classList.remove('border-purple-200');
+      } else {
+        document.getElementById('editGenderFemale').classList.add('bg-pink-500', 'text-white', 'border-purple-500');
+        document.getElementById('editGenderFemale').classList.remove('border-purple-200');
+      }
+      window.editGender = gender;
+    }
+
+    function setEditSocks(socks) {
+      document.getElementById('editSocks0').classList.remove('bg-purple-500', 'text-white', 'border-purple-500');
+      document.getElementById('editSocks1').classList.remove('bg-purple-500', 'text-white', 'border-purple-500');
+      document.getElementById('editSocks0').classList.add('border-purple-200');
+      document.getElementById('editSocks1').classList.add('border-purple-200');
+      
+      if (socks === 0) {
+        document.getElementById('editSocks0').classList.add('bg-purple-500', 'text-white', 'border-purple-500');
+        document.getElementById('editSocks0').classList.remove('border-purple-200');
+      } else {
+        document.getElementById('editSocks1').classList.add('bg-purple-500', 'text-white', 'border-purple-500');
+        document.getElementById('editSocks1').classList.remove('border-purple-200');
+      }
+      window.editSocks = socks;
+      updateEditSummary();
+    }
+
+    function setEditPayment(payment) {
+      document.getElementById('editPayCash').classList.remove('bg-green-500', 'text-white', 'border-purple-500');
+      document.getElementById('editPayScan').classList.remove('bg-blue-500', 'text-white', 'border-purple-500');
+      document.getElementById('editPayCash').classList.add('border-purple-200');
+      document.getElementById('editPayScan').classList.add('border-purple-200');
+      
+      if (payment === 'เงินสด') {
+        document.getElementById('editPayCash').classList.add('bg-green-500', 'text-white', 'border-purple-500');
+        document.getElementById('editPayCash').classList.remove('border-purple-200');
+      } else {
+        document.getElementById('editPayScan').classList.add('bg-blue-500', 'text-white', 'border-purple-500');
+        document.getElementById('editPayScan').classList.remove('border-purple-200');
+      }
+      window.editPayment = payment;
+    }
+
+    function setEditStatus(status) {
+      document.getElementById('editStatusPlaying').classList.remove('bg-blue-500', 'text-white', 'border-purple-500');
+      document.getElementById('editStatusCompleted').classList.remove('bg-green-500', 'text-white', 'border-purple-500');
+      document.getElementById('editStatusPlaying').classList.add('border-purple-200');
+      document.getElementById('editStatusCompleted').classList.add('border-purple-200');
+      
+      if (status === 'playing') {
+        document.getElementById('editStatusPlaying').classList.add('bg-blue-500', 'text-white', 'border-purple-500');
+        document.getElementById('editStatusPlaying').classList.remove('border-purple-200');
+      } else {
+        document.getElementById('editStatusCompleted').classList.add('bg-green-500', 'text-white', 'border-purple-500');
+        document.getElementById('editStatusCompleted').classList.remove('border-purple-200');
+      }
+      window.editStatus = status;
+    }
+
+    async function saveEditCustomer(id) {
+      const customerIndex = findCustomerIndexById(id);
+      if (customerIndex === -1) {
+        showPopup('❌ ไม่พบข้อมูลลูกค้า', 'error');
+        return;
+      }
+      const currentCustomer = customers[customerIndex];
+      const nickname = document.getElementById('editNickname').value.trim();
+      if (!nickname) {
+        showPopup('❌ กรุณากรอกชื่อเล่น', 'error');
+        return;
+      }
+      const selectedTime = toNumber(window.editTime || currentCustomer.play_time || 30);
+      const selectedSocks = window.editSocks !== undefined ? toNumber(window.editSocks) : toNumber(currentCustomer.socks);
+      const currentStartTime = new Date(currentCustomer.start_time || currentCustomer.created_at || Date.now());
+      const safeStartTime = Number.isNaN(currentStartTime.getTime()) ? new Date() : currentStartTime;
+      const previousPlayTime = toNumber(currentCustomer.play_time || selectedTime);
+      const timeChanged = selectedTime !== previousPlayTime;
+      const currentEndTime = new Date(currentCustomer.end_time || safeStartTime.getTime() + selectedTime * 60000);
+      const safeCurrentEndTime = Number.isNaN(currentEndTime.getTime()) ? new Date(safeStartTime.getTime() + selectedTime * 60000) : currentEndTime;
+      const endTime = timeChanged ? new Date(safeStartTime.getTime() + selectedTime * 60000) : safeCurrentEndTime;
+
+      const updatedCustomer = {
+        ...currentCustomer,
+        id: String(currentCustomer.id),
+        nickname,
+        gender: window.editGender || currentCustomer.gender,
+        play_time: selectedTime,
+        play_price: getPlayPrice(selectedTime),
+        socks: selectedSocks,
+        socks_price: selectedSocks > 0 ? settings.priceSocks : 0,
+        payment_method: window.editPayment || currentCustomer.payment_method,
+        status: window.editStatus || currentCustomer.status,
+        start_time: safeStartTime.toISOString(),
+        end_time: endTime.toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      updatedCustomer.total_price = updatedCustomer.play_price + updatedCustomer.socks_price;
+
+      closePopup();
+      showLoading();
+      const result = await window.dataSdk.update(updatedCustomer);
+      hideLoading();
+      if (result.isOk) {
+        customers[customerIndex] = updatedCustomer;
+        if (updatedCustomer.status === 'playing' && new Date(updatedCustomer.end_time) > new Date()) alertedPlayers.delete(String(updatedCustomer.id));
+        if (updatedCustomer.status === 'completed') alertedPlayers.delete(String(updatedCustomer.id));
+        updatePlayingTab();
+        renderCustomerList();
+        updateDashboard();
+        renderCalendar();
+        showPopup('✅ บันทึกและอัปเดตการ์ดผู้เล่นเรียบร้อย!', 'success');
+        window.editGender = null;
+        window.editSocks = null;
+        window.editPayment = null;
+        window.editStatus = null;
+        window.editTime = null;
+      } else {
+        showPopup('❌ เกิดข้อผิดพลาด: ' + (result.error || ''), 'error');
+      }
+    }
+
+
+    function openStatusEditor(id) {
+      editCustomerStatus(id);
+    }
+
+    function editCustomerStatus(id) {
+      const customer = findCustomerById(id);
+      if (!customer) {
+        showPopup('❌ ไม่พบข้อมูลลูกค้า', 'error');
+        return;
+      }
+      const content = `
+        <div class="text-center">
+          <div class="text-4xl mb-3">🔄</div>
+          <h3 class="text-lg font-bold text-purple-700 mb-2">แก้ไขสถานะผู้เล่น</h3>
+          <p class="text-xs md:text-sm mb-3"><strong>${customer.nickname}</strong></p>
+          <div class="grid grid-cols-2 gap-2 mb-4">
+            <button onclick="saveCustomerStatus('${id}', 'playing')" class="py-3 rounded-lg font-bold text-xs ${customer.status === 'playing' ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-700'}">🎮 กำลังเล่น</button>
+            <button onclick="saveCustomerStatus('${id}', 'completed')" class="py-3 rounded-lg font-bold text-xs ${customer.status === 'completed' ? 'bg-green-500 text-white' : 'bg-green-100 text-green-700'}">✅ เล่นเสร็จสิ้น</button>
+          </div>
+          <button onclick="closePopup()" class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-xs">ยกเลิก</button>
+        </div>
+      `;
+      document.getElementById('popupContent').innerHTML = content;
+      document.getElementById('popupModal').classList.remove('hidden');
+    }
+
+    async function saveCustomerStatus(id, status) {
+      const index = findCustomerIndexById(id);
+      if (index === -1) {
+        showPopup('❌ ไม่พบข้อมูลลูกค้า', 'error');
+        return;
+      }
+      const customer = { ...customers[index], status, updated_at: new Date().toISOString() };
+      if (status === 'playing' && new Date(customer.end_time) <= new Date()) {
+        customer.end_time = new Date(Date.now() + toNumber(customer.play_time) * 60000).toISOString();
+      }
+      closePopup();
+      showLoading();
+      const result = await window.dataSdk.update(customer);
+      hideLoading();
+      if (result.isOk) {
+        customers[index] = customer;
+        if (status === 'completed') alertedPlayers.delete(String(id));
+        updatePlayingTab();
+        renderCustomerList();
+        updateDashboard();
+        renderCalendar();
+        showPopup('✅ อัปเดตสถานะเรียบร้อย', 'success');
+      } else {
+        showPopup('❌ เกิดข้อผิดพลาด: ' + (result.error || ''), 'error');
+      }
+    }
+
+    function confirmDeleteCustomer(id) {
+      const customer = findCustomerById(id);
+      if (!customer) return;
+      const content = `
+        <div class="text-center">
+          <div class="text-4xl mb-3">🗑️</div>
+          <h3 class="text-lg font-bold text-red-600 mb-2">ลบข้อมูล?</h3>
+          <p class="text-xs md:text-sm mb-3"><strong>${customer.nickname}</strong></p>
+          <div class="flex gap-2">
+            <button onclick="closePopup()" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-xs">ยกเลิก</button>
+            <button onclick="deleteCustomer('${id}')" class="flex-1 bg-red-500 text-white py-2 rounded-lg font-bold text-xs">ลบ</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('popupContent').innerHTML = content;
+      document.getElementById('popupModal').classList.remove('hidden');
+    }
+
+    async function deleteCustomer(id) {
+      const customer = findCustomerById(id);
+      if (!customer) {
+        showPopup('❌ ไม่พบข้อมูลลูกค้า', 'error');
+        return;
+      }
+      closePopup();
+      showLoading();
+      const result = await window.dataSdk.delete(customer);
+      hideLoading();
+      if (result.isOk) {
+        customers = customers.filter(c => !sameId(c.id, id));
+        updatePlayingTab();
+        renderCustomerList();
+        updateDashboard();
+        renderCalendar();
+        showPopup('✅ ลบเรียบร้อย!', 'success');
+      } else {
+        showPopup('❌ เกิดข้อผิดพลาด: ' + (result.error || ''), 'error');
+      }
+    }
+
+        async function deleteByDateRange() {
+      const fromDate = document.getElementById('deleteFromDate').value;
+      const toDate = document.getElementById('deleteToDate').value;
+      if (!fromDate || !toDate) {
+        showPopup('❌ กรุณาเลือกช่วงวันที่', 'error');
+        return;
+      }
+
+      const from = new Date(fromDate);
+      const to = new Date(toDate);
+      to.setHours(23, 59, 59, 999);
+      const toDelete = customers.filter(c => {
+        const date = new Date(c.created_at);
+        return date >= from && date <= to;
+      });
+
+      if (toDelete.length === 0) {
+        showPopup('📅 ไม่มีข้อมูลในช่วงนี้', 'info');
+        return;
+      }
+
+      const content = `
+        <div class="text-center">
+          <div class="text-4xl mb-3">⚠️</div>
+          <h3 class="text-lg font-bold text-red-600 mb-2">ยืนยันการลบ?</h3>
+          <p class="text-xs md:text-sm mb-3">ลบ <strong>${toDelete.length}</strong> รายการ</p>
+          <div class="flex gap-2">
+            <button onclick="closePopup()" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-xs">ยกเลิก</button>
+            <button onclick="executeDeleteByRange()" class="flex-1 bg-red-500 text-white py-2 rounded-lg font-bold text-xs">ลบทั้งหมด</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('popupContent').innerHTML = content;
+      document.getElementById('popupModal').classList.remove('hidden');
+    }
+
+    async function executeDeleteByRange() {
+      const fromDate = document.getElementById('deleteFromDate').value;
+      const toDate = document.getElementById('deleteToDate').value;
+      const from = new Date(fromDate);
+      const to = new Date(toDate);
+      to.setHours(23, 59, 59, 999);
+      const toDelete = customers.filter(c => {
+        const date = new Date(c.created_at);
+        return date >= from && date <= to;
+      });
+
+      closePopup();
+      showLoading();
+      for (const customer of toDelete) {
+        await window.dataSdk.delete(customer);
+      }
+      hideLoading();
+      showPopup(`✅ ลบ ${toDelete.length} รายการเรียบร้อย!`, 'success');
+      document.getElementById('deleteFromDate').value = '';
+      document.getElementById('deleteToDate').value = '';
+    }
+
+    function loadSettings() {
+      document.getElementById('settingName').value = settings.name;
+      document.getElementById('settingDesc').value = settings.desc;
+      document.getElementById('settingPrice30').value = settings.price30;
+      document.getElementById('settingPrice60').value = settings.price60;
+      document.getElementById('settingPrice120').value = settings.price120;
+      document.getElementById('settingPriceSocks').value = settings.priceSocks;
+    }
+
+    async function saveSettings() {
+      showLoading();
+      const newSettings = {
+        id: settingsRecord?.id || 'settings',
+        type: 'settings',
+        system_name: document.getElementById('settingName').value,
+        system_desc: document.getElementById('settingDesc').value,
+        price_30: parseInt(document.getElementById('settingPrice30').value) || 40,
+        price_60: parseInt(document.getElementById('settingPrice60').value) || 60,
+        price_120: parseInt(document.getElementById('settingPrice120').value) || 100,
+        price_socks: parseInt(document.getElementById('settingPriceSocks').value) || 20,
+        updated_at: new Date().toISOString()
+      };
+
+      let result;
+      if (settingsRecord) {
+        result = await window.dataSdk.update({ ...settingsRecord, ...newSettings });
+      } else {
+        result = await window.dataSdk.create({ ...newSettings, created_at: new Date().toISOString() });
+      }
+
+      hideLoading();
+      if (result.isOk) {
+        showPopup('✅ บันทึกเรียบร้อย!', 'success');
+      } else {
+        showPopup('❌ เกิดข้อผิดพลาด: ' + (result.error || ''), 'error');
+      }
+    }
+
+    function applySettings() {
+      document.getElementById('systemTitle').textContent = settings.name;
+      document.getElementById('systemDesc').textContent = settings.desc;
+      document.getElementById('price30Display').textContent = settings.price30 + ' บาท';
+      document.getElementById('price60Display').textContent = settings.price60 + ' บาท';
+      document.getElementById('price120Display').textContent = settings.price120 + ' บาท';
+      document.getElementById('socksPriceLabel').textContent = `(คู่ละ ${settings.priceSocks} บาท)`;
+      updateSummary();
+    }
+
+    function showPopup(message, type = 'info') {
+      const colors = { success: 'text-green-600', error: 'text-red-600', info: 'text-blue-600' };
+      const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+      const content = `
+        <div class="text-center py-4">
+          <div class="text-3xl mb-2">${icons[type]}</div>
+          <p class="text-sm md:text-base ${colors[type]}">${message}</p>
+          <button onclick="closePopup()" class="mt-3 px-4 py-2 bg-gray-200 rounded-lg font-medium hover:bg-gray-300 text-xs md:text-sm">ตกลง</button>
+        </div>
+      `;
+      document.getElementById('popupContent').innerHTML = content;
+      document.getElementById('popupModal').classList.remove('hidden');
+    }
+
+    function closePopup() {
+      document.getElementById('popupModal').classList.add('hidden');
+      document.getElementById('popupBox')?.classList.remove('edit-mode');
+    }
+
+    document.getElementById('adminPassword')?.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') loginAdmin();
+    });
+
+    init();
+  </script></body>
+</html>
