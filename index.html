@@ -23,6 +23,12 @@
     .time-warning { background: linear-gradient(135deg, #f39c12, #e67e22) !important; }
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .number-picker-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: .35rem; }
+    .number-picker-btn { min-height: 2.15rem; border-radius: .7rem; border: 2px solid rgba(168, 85, 247, .25); background: #fff; color: #6d28d9; font-weight: 800; font-size: .8rem; transition: transform .16s ease, box-shadow .16s ease, background .16s ease, color .16s ease, border-color .16s ease; }
+    .number-picker-btn:hover { transform: translateY(-1px); border-color: rgba(124, 58, 237, .75); box-shadow: 0 8px 18px rgba(91, 33, 182, .14); }
+    .number-picker-btn.is-selected { background: linear-gradient(135deg, #7c3aed, #9333ea); color: #fff; border-color: transparent; box-shadow: 0 10px 20px rgba(124, 58, 237, .24); }
+    @media (max-width: 380px) { .number-picker-grid { gap: .25rem; } .number-picker-btn { min-height: 1.95rem; font-size: .72rem; border-radius: .55rem; } }
+
     .main-tabs-wrap { position: sticky; top: 130px; z-index: 30; background: rgba(255,255,255,.92); backdrop-filter: blur(14px); box-shadow: 0 10px 24px rgba(60, 24, 105, .10); }
     @media (min-width: 768px) { .main-tabs-wrap { top: 120px; } }
     .main-tabs { width: min(92vw, 560px); margin: 0 auto; padding: .55rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; }
@@ -125,6 +131,31 @@
       <div class="space-y-3">
        <div>
         <label class="block text-xs md:text-sm text-gray-700 font-medium mb-2">ชื่อเล่น</label> <input type="text" id="nickname" placeholder="กรอกชื่อเล่น..." class="w-full px-3 py-2 rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:outline-none transition-all text-xs md:text-sm">
+       </div>
+       <div>
+        <div class="flex items-center justify-between gap-2 mb-2">
+         <label class="block text-xs md:text-sm text-gray-700 font-medium">หมายเลขผู้เล่น <span class="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
+         <button type="button" onclick="clearCustomerNumber()" class="text-[11px] md:text-xs text-purple-600 hover:text-purple-800 font-medium">ล้างหมายเลข</button>
+        </div>
+        <div id="customerNumberPicker" class="number-picker-grid" aria-label="เลือกหมายเลขผู้เล่น 1 ถึง 16">
+         <button type="button" onclick="selectCustomerNumber(1)" id="customerNumber1" class="number-picker-btn">1</button>
+         <button type="button" onclick="selectCustomerNumber(2)" id="customerNumber2" class="number-picker-btn">2</button>
+         <button type="button" onclick="selectCustomerNumber(3)" id="customerNumber3" class="number-picker-btn">3</button>
+         <button type="button" onclick="selectCustomerNumber(4)" id="customerNumber4" class="number-picker-btn">4</button>
+         <button type="button" onclick="selectCustomerNumber(5)" id="customerNumber5" class="number-picker-btn">5</button>
+         <button type="button" onclick="selectCustomerNumber(6)" id="customerNumber6" class="number-picker-btn">6</button>
+         <button type="button" onclick="selectCustomerNumber(7)" id="customerNumber7" class="number-picker-btn">7</button>
+         <button type="button" onclick="selectCustomerNumber(8)" id="customerNumber8" class="number-picker-btn">8</button>
+         <button type="button" onclick="selectCustomerNumber(9)" id="customerNumber9" class="number-picker-btn">9</button>
+         <button type="button" onclick="selectCustomerNumber(10)" id="customerNumber10" class="number-picker-btn">10</button>
+         <button type="button" onclick="selectCustomerNumber(11)" id="customerNumber11" class="number-picker-btn">11</button>
+         <button type="button" onclick="selectCustomerNumber(12)" id="customerNumber12" class="number-picker-btn">12</button>
+         <button type="button" onclick="selectCustomerNumber(13)" id="customerNumber13" class="number-picker-btn">13</button>
+         <button type="button" onclick="selectCustomerNumber(14)" id="customerNumber14" class="number-picker-btn">14</button>
+         <button type="button" onclick="selectCustomerNumber(15)" id="customerNumber15" class="number-picker-btn">15</button>
+         <button type="button" onclick="selectCustomerNumber(16)" id="customerNumber16" class="number-picker-btn">16</button>
+        </div>
+        <p class="mt-1.5 text-[11px] text-gray-500">เลือกได้ 1 หมายเลข หรือไม่เลือกก็สามารถบันทึกได้</p>
        </div>
        <div>
         <label class="block text-xs md:text-sm text-gray-700 font-medium mb-2">เพศ</label>
@@ -395,7 +426,7 @@
   <script>
     // ===== Google Apps Script Server Adapter =====
     // ล็อก URL ฐานข้อมูลไว้ที่ค่านี้เท่านั้น ห้ามอ่าน/เขียน URL จาก localStorage
-    const CONFIG_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz32DG_GLJ_3ywfXmENlUpa--Pp0mJcnnk7cFGc5uMSITdS62KwZYfqmNWqIe_Vs1Gh/exec';
+    const CONFIG_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxQ0ZTtFQkYosWeMYGmD5zdKH1MwkJEQk_KE369IJDxOR4hO_H1ue6DNnaYKhnWt0mV/exec';
 
     function normalizeWebAppUrl(url) {
       const value = String(url || '').trim();
@@ -581,7 +612,7 @@
     let currentMonth = new Date();
     let dashboardFilterMonth = new Date().getMonth();
     let dashboardFilterYear = new Date().getFullYear();
-    let selectedForm = { gender: '', time: 0, socks: -1, payment: '' };
+    let selectedForm = { gender: '', number: '', time: 0, socks: -1, payment: '' };
     let timerInterval = null;
     let alertedPlayers = new Set();
     const dataHandler = {
@@ -801,6 +832,36 @@
       }
     }
 
+    function getCustomerNumberValue(value) {
+      const number = Number(value);
+      return Number.isInteger(number) && number >= 1 && number <= 16 ? number : '';
+    }
+
+    function getCustomerNumberText(customer) {
+      const number = getCustomerNumberValue(customer?.player_number);
+      return number ? `#${number}` : '';
+    }
+
+    function selectCustomerNumber(number) {
+      const selectedNumber = getCustomerNumberValue(number);
+      selectedForm.number = selectedForm.number === selectedNumber ? '' : selectedNumber;
+      updateCustomerNumberButtons();
+    }
+
+    function clearCustomerNumber() {
+      selectedForm.number = '';
+      updateCustomerNumberButtons();
+    }
+
+    function updateCustomerNumberButtons() {
+      for (let i = 1; i <= 16; i++) {
+        const btn = document.getElementById('customerNumber' + i);
+        if (!btn) continue;
+        btn.classList.toggle('is-selected', selectedForm.number === i);
+        btn.setAttribute('aria-pressed', selectedForm.number === i ? 'true' : 'false');
+      }
+    }
+
     function selectGender(gender) {
       selectedForm.gender = gender;
       document.getElementById('genderMale').classList.toggle('bg-purple-500', gender === 'ชาย');
@@ -876,6 +937,7 @@
         type: 'customer',
         nickname: nickname,
         gender: selectedForm.gender,
+        player_number: selectedForm.number || '',
         play_time: selectedForm.time,
         play_price: playPrice,
         socks: selectedForm.socks,
@@ -904,6 +966,7 @@
           <div class="text-4xl mb-3">${customer.gender === 'ชาย' ? '👦' : '👧'}</div>
           <h3 class="text-xl font-bold text-purple-700 mb-3">${customer.nickname}</h3>
           <div class="text-left space-y-2 bg-purple-50 rounded-lg p-3 mb-3 text-xs md:text-sm">
+            ${getCustomerNumberText(customer) ? `<p><span class="font-medium">🔢 หมายเลข:</span> ${getCustomerNumberText(customer)}</p>` : ''}
             <p><span class="font-medium">⏱️ เวลาเล่น:</span> ${customer.play_time} นาที</p>
             <p><span class="font-medium">💰 ค่าเล่น:</span> ${customer.play_price} บาท</p>
             <p><span class="font-medium">🧦 ถุงเท้า:</span> ${customer.socks > 0 ? 'ซื้อ 1 คู่' : 'ไม่ซื้อ'}</p>
@@ -921,10 +984,11 @@
 
     function resetForm() {
       document.getElementById('nickname').value = '';
-      selectedForm = { gender: '', time: 0, socks: -1, payment: '' };
+      selectedForm = { gender: '', number: '', time: 0, socks: -1, payment: '' };
       ['genderMale', 'genderFemale', 'time30', 'time60', 'time120', 'socks0', 'socks1', 'payCash', 'payScan'].forEach(id => {
         document.getElementById(id).classList.remove('bg-purple-500', 'bg-pink-500', 'bg-green-500', 'bg-blue-500', 'text-white');
       });
+      updateCustomerNumberButtons();
       document.getElementById('summary').classList.add('hidden');
     }
 
@@ -976,7 +1040,7 @@
           <div class="${cardClass} rounded-lg p-3 card-shadow ${isExpired ? 'pulse-alert' : ''}" data-player-id="${player.id}">
             <div class="flex items-center justify-between mb-2">
               <span class="text-xl">${player.gender === 'ชาย' ? '👦' : '👧'}</span>
-              <span class="text-xs ${isExpired || isWarning ? 'text-white' : 'text-gray-500'}">${player.play_time}นาที</span>
+              <span class="text-xs ${isExpired || isWarning ? 'text-white' : 'text-gray-500'}">${getCustomerNumberText(player) ? getCustomerNumberText(player) + ' • ' : ''}${player.play_time}นาที</span>
             </div>
             <h4 class="font-bold truncate text-sm">${player.nickname}</h4>
             <div class="text-xs mt-2 space-y-1">
@@ -1007,6 +1071,7 @@
           <h3 class="text-lg font-bold text-purple-700 mb-3">${player.nickname}</h3>
           <div class="text-left space-y-2 bg-purple-50 rounded-lg p-3 mb-3 text-xs">
             <p><span class="font-medium">👤 เพศ:</span> ${player.gender}</p>
+            ${getCustomerNumberText(player) ? `<p><span class="font-medium">🔢 หมายเลข:</span> ${getCustomerNumberText(player)}</p>` : ''}
             <p><span class="font-medium">⏱️ เวลา:</span> ${player.play_time} นาที</p>
             <p><span class="font-medium">💰 ค่าเล่น:</span> ${player.play_price} บาท</p>
             <p><span class="font-medium">🧦 ถุงเท้า:</span> ${player.socks > 0 ? 'ซื้อ 1 คู่ (' + player.socks_price + '฿)' : 'ไม่ซื้อ'}</p>
@@ -1372,7 +1437,7 @@
       const toDateStr = document.getElementById('filterToDate')?.value;
       
       let filtered = customers.filter(c => {
-        const matchesSearch = c.nickname.toLowerCase().includes(searchTerm);
+        const matchesSearch = c.nickname.toLowerCase().includes(searchTerm) || String(c.player_number || '').includes(searchTerm);
         const matchesStatus = filterStatus === 'all' || c.status === filterStatus;
         
         let matchesDate = true;
@@ -1411,7 +1476,7 @@
               <span class="text-lg">${c.gender === 'ชาย' ? '👦' : '👧'}</span>
               <div class="flex-1 min-w-0">
                 <div class="font-medium text-xs md:text-sm">${c.nickname}</div>
-                <div class="text-xs text-gray-500">${date} • ${c.total_price}฿</div>
+                <div class="text-xs text-gray-500">${date} • ${c.total_price}฿${getCustomerNumberText(c) ? ' • ' + getCustomerNumberText(c) : ''}</div>
                 <div class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusColor}">${statusBadge}</div>
               </div>
             </div>
@@ -1447,6 +1512,15 @@
           <div class="md:col-span-2">
             <label class="block text-xs text-gray-700 font-medium mb-1">ชื่อเล่น</label>
             <input type="text" id="editNickname" value="${customer.nickname}" placeholder="กรอกชื่อเล่น..." class="w-full px-3 py-2 rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:outline-none transition-all text-xs md:text-sm">
+          </div>
+          <div class="md:col-span-2">
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <label class="block text-xs text-gray-700 font-medium">หมายเลขผู้เล่น <span class="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
+              <button type="button" onclick="setEditNumber('')" class="text-[11px] text-purple-600 hover:text-purple-800 font-medium">ล้างหมายเลข</button>
+            </div>
+            <div class="number-picker-grid" aria-label="แก้ไขหมายเลขผู้เล่น 1 ถึง 16">
+              ${Array.from({ length: 16 }, (_, i) => i + 1).map(number => `<button type="button" onclick="setEditNumber(${number})" id="editNumber${number}" class="number-picker-btn">${number}</button>`).join('')}
+            </div>
           </div>
           <div>
             <label class="block text-xs text-gray-700 font-medium mb-1">เพศ</label>
@@ -1506,11 +1580,23 @@
       document.getElementById('editPrice120Display').textContent = settings.price120 + ' บาท';
       setTimeout(() => {
         setEditGender(customer.gender);
+        setEditNumber(getCustomerNumberValue(customer.player_number));
         setEditSocks(toNumber(customer.socks));
         setEditPayment(customer.payment_method);
         setEditStatus(customer.status);
         setEditTime(toNumber(customer.play_time || 30));
       }, 0);
+    }
+
+    function setEditNumber(number) {
+      const selectedNumber = getCustomerNumberValue(number);
+      window.editNumber = window.editNumber === selectedNumber ? '' : selectedNumber;
+      for (let i = 1; i <= 16; i++) {
+        const btn = document.getElementById('editNumber' + i);
+        if (!btn) continue;
+        btn.classList.toggle('is-selected', window.editNumber === i);
+        btn.setAttribute('aria-pressed', window.editNumber === i ? 'true' : 'false');
+      }
     }
 
     function setEditTime(time) {
@@ -1620,6 +1706,7 @@
       }
       const selectedTime = toNumber(window.editTime || currentCustomer.play_time || 30);
       const selectedSocks = window.editSocks !== undefined ? toNumber(window.editSocks) : toNumber(currentCustomer.socks);
+      const selectedNumber = window.editNumber === undefined || window.editNumber === null ? getCustomerNumberValue(currentCustomer.player_number) : getCustomerNumberValue(window.editNumber);
       const currentStartTime = new Date(currentCustomer.start_time || currentCustomer.created_at || Date.now());
       const safeStartTime = Number.isNaN(currentStartTime.getTime()) ? new Date() : currentStartTime;
       const previousPlayTime = toNumber(currentCustomer.play_time || selectedTime);
@@ -1633,6 +1720,7 @@
         id: String(currentCustomer.id),
         nickname,
         gender: window.editGender || currentCustomer.gender,
+        player_number: selectedNumber || '',
         play_time: selectedTime,
         play_price: getPlayPrice(selectedTime),
         socks: selectedSocks,
@@ -1662,6 +1750,7 @@
         window.editSocks = null;
         window.editPayment = null;
         window.editStatus = null;
+        window.editNumber = null;
         window.editTime = null;
       } else {
         showPopup('❌ เกิดข้อผิดพลาด: ' + (result.error || ''), 'error');
