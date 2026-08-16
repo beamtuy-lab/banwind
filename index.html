@@ -67,8 +67,25 @@
     @keyframes sparkle { 0%,100% { transform: scale(.45); opacity:.25; } 50% { transform: scale(1.15); opacity:1; } }
     @keyframes dotPulse { 0%,100% { transform: translateY(0); opacity:.45; } 50% { transform: translateY(-4px); opacity:1; } }
 
+    .time-alert-shell { background: rgba(6, 8, 24, .76); backdrop-filter: blur(16px); }
+    .time-alert-card { position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,.22); background: radial-gradient(circle at 18% 12%, rgba(255,255,255,.34), transparent 28%), linear-gradient(145deg, #7f1d1d 0%, #dc2626 42%, #f97316 100%); box-shadow: 0 34px 100px rgba(127, 29, 29, .48), inset 0 1px 0 rgba(255,255,255,.26); }
+    .time-alert-card::before { content: ''; position: absolute; inset: -42%; background: conic-gradient(from 110deg, transparent, rgba(255,255,255,.28), transparent 32%); animation: premiumSweep 4.2s linear infinite; }
+    .time-alert-card::after { content: ''; position: absolute; inset: 1px; border-radius: 1.45rem; background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0)); pointer-events: none; }
+    .time-alert-content { position: relative; z-index: 1; }
+    .time-alert-icon { width: 96px; height: 96px; margin: 0 auto 1rem; display: grid; place-items: center; border-radius: 999px; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.28); box-shadow: inset 0 0 0 8px rgba(255,255,255,.08), 0 18px 38px rgba(89, 18, 18, .26); animation: alertBell 1.05s ease-in-out infinite; }
+    .time-alert-ring { position: absolute; inset: 18px; border-radius: 999px; border: 2px solid rgba(255,255,255,.48); animation: alertRing 1.35s ease-out infinite; }
+    .time-alert-name { text-shadow: 0 6px 18px rgba(67, 10, 10, .25); }
+    .time-alert-badge { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; padding: .45rem .8rem; border-radius: 999px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.20); color: rgba(255,255,255,.94); font-size: .78rem; }
+    .time-alert-primary { background: linear-gradient(135deg, #ffffff, #fff7ed); color: #b91c1c; box-shadow: 0 14px 32px rgba(80, 18, 18, .24); }
+    .time-alert-secondary { background: rgba(255,255,255,.16); color: #fff; border: 1px solid rgba(255,255,255,.24); }
+    .time-alert-primary:hover, .time-alert-secondary:hover { transform: translateY(-1px); filter: brightness(1.03); }
+    @keyframes premiumSweep { to { transform: rotate(360deg); } }
+    @keyframes alertBell { 0%, 100% { transform: rotate(0deg) scale(1); } 20% { transform: rotate(-7deg) scale(1.03); } 40% { transform: rotate(7deg) scale(1.03); } 60% { transform: rotate(-4deg) scale(1.01); } 80% { transform: rotate(4deg) scale(1.01); } }
+    @keyframes alertRing { 0% { transform: scale(.75); opacity: .72; } 100% { transform: scale(1.48); opacity: 0; } }
+
   </style>
   <style>body { box-sizing: border-box; }</style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
  </head>
  <body class="h-full bg-gray-100">
@@ -97,13 +114,22 @@
      <div id="popupContent"></div>
     </div>
    </div>
-   <div id="timeAlertModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-    <div class="bg-red-500 rounded-2xl p-6 m-4 max-w-md w-full card-shadow slide-up text-white text-center">
-     <div class="text-6xl mb-4">
-      ⏰
+   <div id="timeAlertModal" class="fixed inset-0 time-alert-shell flex items-center justify-center z-50 hidden">
+    <div class="time-alert-card rounded-[1.55rem] p-5 md:p-6 m-4 max-w-md w-full slide-up text-white text-center">
+     <div class="time-alert-content">
+      <div class="time-alert-icon relative">
+       <span class="time-alert-ring"></span>
+       <span class="text-5xl">⏰</span>
+      </div>
+      <div class="time-alert-badge mb-3">🔔 แจ้งเตือนเวลาการเล่น</div>
+      <h3 class="text-2xl md:text-3xl font-bold mb-2">หมดเวลาแล้ว</h3>
+      <p id="alertPlayerName" class="time-alert-name text-xl md:text-2xl font-bold mb-1"></p>
+      <p id="alertPlayerMeta" class="text-sm text-white/85 mb-5">กรุณาตรวจสอบผู้เล่นและบันทึกสถานะ</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+       <button onclick="closeTimeAlert()" class="time-alert-secondary px-5 py-3 rounded-2xl font-bold text-sm transition-all">รับทราบ</button>
+       <button onclick="completeTimeAlertPlayer()" class="time-alert-primary px-5 py-3 rounded-2xl font-bold text-sm transition-all">✅ บันทึกว่าเล่นเสร็จสิ้น</button>
+      </div>
      </div>
-     <h3 class="text-2xl font-bold mb-2">หมดเวลาแล้ว!</h3>
-     <p id="alertPlayerName" class="text-xl mb-4"></p><button onclick="closeTimeAlert()" class="bg-white text-red-500 px-6 py-2 rounded-full font-medium hover:bg-gray-100"> ปิด </button>
     </div>
    </div>
    <header class="gradient-bg text-white p-4 sticky top-0 z-40">
@@ -393,7 +419,7 @@
         <h3 class="font-bold text-purple-700 mb-4 text-lg">⚙️ ตั้งค่าระบบ</h3>
         <div class="space-y-3">
          <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-3 text-xs text-purple-800 leading-relaxed">
-          🔒 ระบบล็อกการเชื่อมต่อฐานข้อมูลไว้ที่ <strong>CONFIG_WEB_APP_URL</strong> ในไฟล์ HTML แล้ว หากเชื่อมต่อไม่ได้ให้ตรวจสอบ URL /exec และสิทธิ์ Deploy ของ Google Apps Script
+          🔒 ระบบนี้เชื่อมต่อฐานข้อมูล Supabase โปรเจค <strong>banwind</strong> โดยตรง ไม่ใช้ Google Apps Script แล้ว<br><span class="text-green-700 font-bold">อัปเดต: แก้บันทึกตั้งค่า Admin ไม่ส่งค่าว่างเข้า column integer แล้ว</span>
          </div>
 <div>
           <label class="block text-xs md:text-sm text-gray-700 font-medium mb-1">ชื่อระบบ</label> <input type="text" id="settingName" class="w-full px-3 py-2 rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:outline-none text-xs md:text-sm">
@@ -424,102 +450,106 @@
    <button type="button" id="adminFloatingButton" onclick="openAdminPanel()" class="admin-fab" title="เข้าสู่ระบบผู้ดูแล" aria-label="เข้าสู่ระบบผู้ดูแล">🔑</button>
   </div>
   <script>
-    // ===== Google Apps Script Server Adapter =====
-    // ล็อก URL ฐานข้อมูลไว้ที่ค่านี้เท่านั้น ห้ามอ่าน/เขียน URL จาก localStorage
-    const CONFIG_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxQ0ZTtFQkYosWeMYGmD5zdKH1MwkJEQk_KE369IJDxOR4hO_H1ue6DNnaYKhnWt0mV/exec';
+    // ===== Supabase Client Adapter =====
+    // ระบบนี้ไม่ใช้ Google Apps Script แล้ว เชื่อมต่อ Supabase โปรเจค banwind โดยตรง
+    const SUPABASE_URL = 'https://updjdzxqkiwrrmxzcydk.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwZGpkenhxa2l3cnJteHpjeWRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1Nzc3NzUsImV4cCI6MjA5OTE1Mzc3NX0.BYJ1GmQ8mX7kYqSc00WWpn8rElCHeY69QQridAUycYU';
+    const SUPABASE_TABLE = 'banwind_records';
 
-    function normalizeWebAppUrl(url) {
-      const value = String(url || '').trim();
-      if (!value) return '';
-      return value.replace(/\/dev(\?.*)?$/, '/exec$1');
-    }
-
-    function getApiUrl() {
-      const url = normalizeWebAppUrl(CONFIG_WEB_APP_URL);
-      if (!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec(\?.*)?$/.test(url)) {
-        throw new Error('CONFIG_WEB_APP_URL ไม่ถูกต้อง กรุณาใช้ URL Web App ที่ลงท้ายด้วย /exec');
+    function getSupabaseClient() {
+      if (!window.supabase || !window.supabase.createClient) {
+        throw new Error('ไม่พบไลบรารี Supabase JS กรุณาตรวจสอบอินเทอร์เน็ตหรือ CDN');
       }
-      return url;
-    }
-
-    function parseServerJson(text) {
-      try {
-        return JSON.parse(text);
-      } catch (error) {
-        const preview = String(text || '').replace(/\s+/g, ' ').slice(0, 180);
-        throw new Error('Server response ไม่ใช่ JSON: ' + preview);
-      }
-    }
-
-    async function fetchJson(url, options) {
-      const response = await fetch(url, options);
-      const text = await response.text();
-      if (!response.ok) throw new Error('HTTP ' + response.status + ': ' + text.slice(0, 160));
-      return parseServerJson(text);
-    }
-
-    function buildGetFallbackUrl() {
-      const url = new URL(getApiUrl());
-      url.searchParams.set('action', 'read_all');
-      url.searchParams.set('_ts', Date.now().toString());
-      return url.toString();
-    }
-
-    async function getReadAllFallback() {
-      return await fetchJson(buildGetFallbackUrl(), {
-        method: 'GET',
-        redirect: 'follow',
-        cache: 'no-store'
-      });
-    }
-
-    async function runGasApi(payload) {
-      return new Promise((resolve, reject) => {
-        if (!window.google || !google.script || !google.script.run) {
-          reject(new Error('google.script.run ไม่พร้อมใช้งาน'));
-          return;
-        }
-        google.script.run
-          .withSuccessHandler((response) => {
-            try { resolve(typeof response === 'string' ? parseServerJson(response) : response); }
-            catch (error) { reject(error); }
-          })
-          .withFailureHandler((error) => reject(new Error(error && error.message ? error.message : String(error))))
-          .api(JSON.stringify(payload));
-      });
-    }
-
-    async function postToServer(payload) {
-      const apiUrl = getApiUrl();
-      const isReadRequest = payload.action === 'list' || payload.action === 'read_all';
-
-      if (window.google && google.script && google.script.run && window.location.href.includes('script.google.com')) {
-        try {
-          return await runGasApi(payload);
-        } catch (gasError) {
-          if (!isReadRequest) throw gasError;
-        }
-      }
-
-      try {
-        return await fetchJson(apiUrl, {
-          method: 'POST',
-          redirect: 'follow',
-          cache: 'no-store',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
+      if (!window.banwindSupabaseClient) {
+        window.banwindSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+          auth: { persistSession: false, autoRefreshToken: false },
+          global: { headers: { 'x-application-name': 'banwind-slide-app' } }
         });
-      } catch (postError) {
-        if (isReadRequest) {
-          try {
-            const fallback = await getReadAllFallback();
-            if (fallback && fallback.ok) return fallback;
-          } catch (getError) {
-            throw new Error('POST และ GET fallback ไม่สำเร็จ กรุณาตรวจสอบ CONFIG_WEB_APP_URL และสิทธิ์ Deploy Web App เป็น Anyone: ' + getError.message);
-          }
-        }
-        throw new Error('เชื่อมต่อ GAS ไม่สำเร็จ กรุณาตรวจสอบ CONFIG_WEB_APP_URL และสิทธิ์ Deploy Web App เป็น Anyone: ' + postError.message);
       }
+      return window.banwindSupabaseClient;
+    }
+
+    function toNullableInteger(value) {
+      if (value === '' || value === null || value === undefined) return null;
+      const number = Number(value);
+      return Number.isFinite(number) ? Math.trunc(number) : null;
+    }
+
+    function toMoneyNumber(value) {
+      const number = Number(value);
+      return Number.isFinite(number) ? number : 0;
+    }
+
+    function toNullableIso(value) {
+      if (!value) return null;
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? null : date.toISOString();
+    }
+
+    function pruneUndefined(record) {
+      const cleaned = {};
+      Object.entries(record || {}).forEach(([key, value]) => {
+        if (value !== undefined) cleaned[key] = value;
+      });
+      return cleaned;
+    }
+
+    function normalizeRecordForSupabase(record) {
+      const item = pruneUndefined({ ...record });
+      item.id = String(item.id || Date.now());
+      item.type = item.type || 'customer';
+
+      if (item.type === 'customer') {
+        item.nickname = String(item.nickname || '').trim();
+        item.gender = item.gender || null;
+        item.player_number = toNullableInteger(item.player_number);
+        item.play_time = toNullableInteger(item.play_time);
+        item.play_price = toMoneyNumber(item.play_price);
+        item.socks = toNullableInteger(item.socks) || 0;
+        item.socks_price = toMoneyNumber(item.socks_price);
+        item.payment_method = item.payment_method || null;
+        item.total_price = toMoneyNumber(item.total_price);
+        item.start_time = toNullableIso(item.start_time);
+        item.end_time = toNullableIso(item.end_time);
+        item.status = item.status || 'playing';
+        item.created_at = toNullableIso(item.created_at) || new Date().toISOString();
+        item.updated_at = toNullableIso(item.updated_at);
+      }
+
+      if (item.type === 'settings') {
+        // Settings record must never send customer-only fields as empty strings to Supabase integer columns.
+        // PostgreSQL accepts null for optional integers, but rejects "" with: invalid input syntax for type integer.
+        const safeSettings = {
+          id: String(item.id || 'settings'),
+          type: 'settings',
+          system_name: String(item.system_name || settings.name || '').trim(),
+          system_desc: String(item.system_desc || settings.desc || '').trim(),
+          price_30: toNullableInteger(item.price_30) || 40,
+          price_60: toNullableInteger(item.price_60) || 60,
+          price_120: toNullableInteger(item.price_120) || 100,
+          price_socks: toNullableInteger(item.price_socks) || 20,
+          updated_at: toNullableIso(item.updated_at) || new Date().toISOString()
+        };
+        if (item.created_at) safeSettings.created_at = toNullableIso(item.created_at);
+        return safeSettings;
+      }
+      return item;
+    }
+
+    function normalizeRecordFromSupabase(record) {
+      if (!record) return record;
+      return {
+        ...record,
+        id: String(record.id),
+        player_number: record.player_number ?? '',
+        play_price: toMoneyNumber(record.play_price),
+        socks_price: toMoneyNumber(record.socks_price),
+        total_price: toMoneyNumber(record.total_price),
+        price_30: record.price_30 ?? undefined,
+        price_60: record.price_60 ?? undefined,
+        price_120: record.price_120 ?? undefined,
+        price_socks: record.price_socks ?? undefined
+      };
     }
 
     async function withLoading(message, task) {
@@ -535,66 +565,97 @@
       handler: null,
       async init(handler) {
         this.handler = handler;
-        return await this.refresh('กำลังโหลดข้อมูลจากฐานข้อมูล');
+        return await this.refresh('กำลังโหลดข้อมูลจาก Supabase');
       },
       async refresh(message = 'กำลังโหลดข้อมูลล่าสุด') {
         return await withLoading(message, async () => {
           try {
-            const result = await postToServer({ action: 'list' });
-            if (result && result.ok) {
-              this.handler?.onDataChanged(result.data || []);
-              return { isOk: true };
-            }
-            console.error(result?.error || 'Load data failed');
-            return { isOk: false, error: result?.error || 'Load data failed' };
+            const client = getSupabaseClient();
+            const { data, error } = await client
+              .from(SUPABASE_TABLE)
+              .select('*')
+              .order('created_at', { ascending: false });
+            if (error) throw error;
+            this.handler?.onDataChanged((data || []).map(normalizeRecordFromSupabase));
+            return { isOk: true };
           } catch (error) {
             console.error(error);
-            return { isOk: false, error: error.message };
+            return { isOk: false, error: error.message || String(error) };
           }
         });
       },
       async create(record) {
         return await withLoading('กำลังบันทึกข้อมูลลูกค้า', async () => {
           try {
-            const result = await postToServer({ action: 'create', record });
-            if (result && result.ok) {
-              await this.refresh('กำลังอัปเดตข้อมูลล่าสุด');
-              return { isOk: true, data: result.record };
-            }
-            return { isOk: false, error: result?.error || 'Create failed' };
+            const client = getSupabaseClient();
+            const payload = normalizeRecordForSupabase(record);
+            const { data, error } = await client
+              .from(SUPABASE_TABLE)
+              .insert(payload)
+              .select('*')
+              .single();
+            if (error) throw error;
+            await this.refresh('กำลังอัปเดตข้อมูลล่าสุด');
+            return { isOk: true, data: normalizeRecordFromSupabase(data) };
           } catch (error) {
             console.error(error);
-            return { isOk: false, error: error.message };
+            return { isOk: false, error: error.message || String(error) };
           }
         });
       },
       async update(record) {
         return await withLoading('กำลังอัปเดตข้อมูล', async () => {
           try {
-            const result = await postToServer({ action: 'update', record });
-            if (result && result.ok) {
-              await this.refresh('กำลังโหลดข้อมูลหลังอัปเดต');
-              return { isOk: true, data: result.record };
-            }
-            return { isOk: false, error: result?.error || 'Update failed' };
+            const client = getSupabaseClient();
+            const payload = normalizeRecordForSupabase(record);
+            const { data, error } = await client
+              .from(SUPABASE_TABLE)
+              .update(payload)
+              .eq('id', String(record.id))
+              .select('*')
+              .single();
+            if (error) throw error;
+            await this.refresh('กำลังโหลดข้อมูลหลังอัปเดต');
+            return { isOk: true, data: normalizeRecordFromSupabase(data) };
           } catch (error) {
             console.error(error);
-            return { isOk: false, error: error.message };
+            return { isOk: false, error: error.message || String(error) };
           }
         });
       },
       async delete(record) {
         return await withLoading('กำลังลบข้อมูล', async () => {
           try {
-            const result = await postToServer({ action: 'delete', id: record.id, type: record.type });
-            if (result && result.ok) {
-              await this.refresh('กำลังโหลดข้อมูลหลังลบ');
-              return { isOk: true };
-            }
-            return { isOk: false, error: result?.error || 'Delete failed' };
+            const client = getSupabaseClient();
+            const { error } = await client
+              .from(SUPABASE_TABLE)
+              .delete()
+              .eq('id', String(record.id));
+            if (error) throw error;
+            await this.refresh('กำลังโหลดข้อมูลหลังลบ');
+            return { isOk: true };
           } catch (error) {
             console.error(error);
-            return { isOk: false, error: error.message };
+            return { isOk: false, error: error.message || String(error) };
+          }
+        });
+      },
+      async deleteMany(records) {
+        return await withLoading('กำลังลบข้อมูลตามช่วงวันที่', async () => {
+          try {
+            const ids = (records || []).map(r => String(r.id)).filter(Boolean);
+            if (ids.length === 0) return { isOk: true };
+            const client = getSupabaseClient();
+            const { error } = await client
+              .from(SUPABASE_TABLE)
+              .delete()
+              .in('id', ids);
+            if (error) throw error;
+            await this.refresh('กำลังโหลดข้อมูลหลังลบ');
+            return { isOk: true };
+          } catch (error) {
+            console.error(error);
+            return { isOk: false, error: error.message || String(error) };
           }
         });
       }
@@ -615,6 +676,9 @@
     let selectedForm = { gender: '', number: '', time: 0, socks: -1, payment: '' };
     let timerInterval = null;
     let alertedPlayers = new Set();
+    let activeTimeAlertPlayerId = null;
+    let timeAlertAudioCtx = null;
+    let isCompletingPlayer = false;
     const dataHandler = {
       onDataChanged(data) {
         allRecords = Array.isArray(data) ? data : [];
@@ -641,7 +705,7 @@
 
     async function init() {
       const result = await window.dataSdk.init(dataHandler);
-      if (!result.isOk) showPopup('❌ เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาตรวจสอบ CONFIG_WEB_APP_URL ในไฟล์ HTML และสิทธิ์ Deploy Web App เป็น Anyone: ' + (result.error || ''), 'error');
+      if (!result.isOk) showPopup('❌ เชื่อมต่อฐานข้อมูล Supabase ไม่สำเร็จ: ' + (result.error || ''), 'error');
       updateClock();
       setInterval(updateClock, 1000);
       if (isAdminLoggedIn) {
@@ -956,7 +1020,7 @@
         showCustomerDetails(customer);
         resetForm();
       } else {
-        showPopup('❌ เกิดข้อผิดพลาด: กรุณาตรวจสอบ CONFIG_WEB_APP_URL และสิทธิ์ Deploy Web App', 'error');
+        showPopup('❌ เกิดข้อผิดพลาดในการบันทึก Supabase: ' + (result.error || ''), 'error');
       }
     }
 
@@ -1106,18 +1170,23 @@
     }
 
     async function completePlayer(id) {
+      const playerId = String(id);
+      alertedPlayers.add(playerId);
+      isCompletingPlayer = true;
       closePopup();
+      if (activeTimeAlertPlayerId === playerId) closeTimeAlert();
       showLoading();
       const index = findCustomerIndexById(id);
       if (index === -1) {
         hideLoading();
+        isCompletingPlayer = false;
         showPopup('❌ ไม่พบข้อมูลลูกค้า', 'error');
         return;
       }
       const player = { ...customers[index], status: 'completed', updated_at: new Date().toISOString() };
-      alertedPlayers.delete(String(id));
       const result = await window.dataSdk.update(player);
       hideLoading();
+      isCompletingPlayer = false;
       if (result.isOk) {
         customers[index] = player;
         updatePlayingTab();
@@ -1136,9 +1205,10 @@
         const playing = customers.filter(c => c.status === 'playing');
         const now = new Date();
         playing.forEach(player => {
+          const playerId = String(player.id);
           const endTime = new Date(player.end_time);
-          if (now >= endTime && !alertedPlayers.has(player.id)) {
-            alertedPlayers.add(player.id);
+          if (!Number.isNaN(endTime.getTime()) && now >= endTime && !isCompletingPlayer && !alertedPlayers.has(playerId) && activeTimeAlertPlayerId !== playerId) {
+            alertedPlayers.add(playerId);
             showTimeAlert(player);
           }
         });
@@ -1146,17 +1216,67 @@
       }, 1000);
     }
 
-    function showTimeAlert(player) {
-      document.getElementById('alertPlayerName').textContent = player.nickname + ' หมดเวลาแล้ว!';
-      document.getElementById('timeAlertModal').classList.remove('hidden');
+    function playTimeAlertSound() {
       try {
-        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2eleA0PPp/Y46FSAAA/ntrfpXYQCD6e2d+peRAKPp7Z3qx4Dwo+ntnfrXkODT2e2d+ueQ8NPp7Z3697Dw0+ntnfr3sODT6e2d+vew8NPp7Z369+Dg4+ntnfsH0ODj6e2d+wfQ4OPp7Z37B9Dg4+ntnes30ODj6e2d60fQ4OPp7Z3rR9Dg4+ntnetX0ODj6e2d61fg4OPp7Z3rV+Dg4+ntnftX4ODj6e2d+1fg4OPp7Z37V+Dg4=');
-        audio.play().catch(() => {});
-      } catch(e) {}
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        if (!timeAlertAudioCtx || timeAlertAudioCtx.state === 'closed') timeAlertAudioCtx = new AudioCtx();
+        const ctx = timeAlertAudioCtx;
+        if (ctx.state === 'suspended') ctx.resume?.();
+        const master = ctx.createGain();
+        master.gain.setValueAtTime(0.0001, ctx.currentTime);
+        master.gain.exponentialRampToValueAtTime(0.22, ctx.currentTime + 0.03);
+        master.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.35);
+        master.connect(ctx.destination);
+
+        const notes = [880, 660, 880, 1175, 988];
+        notes.forEach((freq, index) => {
+          const start = ctx.currentTime + index * 0.18;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = index % 2 === 0 ? 'square' : 'triangle';
+          osc.frequency.setValueAtTime(freq, start);
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(0.16, start + 0.018);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.14);
+          osc.connect(gain).connect(master);
+          osc.start(start);
+          osc.stop(start + 0.16);
+        });
+        navigator.vibrate?.([180, 70, 180]);
+      } catch (error) {}
+    }
+
+    function showTimeAlert(player) {
+      const livePlayer = findCustomerById(player.id);
+      if (!livePlayer || livePlayer.status !== 'playing') return;
+      const playerId = String(livePlayer.id);
+      activeTimeAlertPlayerId = playerId;
+      document.getElementById('alertPlayerName').textContent = livePlayer.nickname;
+      const meta = document.getElementById('alertPlayerMeta');
+      if (meta) {
+        const numberText = getCustomerNumberText(livePlayer);
+        const playTime = toNumber(livePlayer.play_time);
+        meta.textContent = `${numberText ? numberText + ' • ' : ''}เวลาเล่น ${playTime} นาทีครบกำหนดแล้ว`;
+      }
+      document.getElementById('timeAlertModal').classList.remove('hidden');
+      playTimeAlertSound();
+    }
+
+    function completeTimeAlertPlayer() {
+      const playerId = activeTimeAlertPlayerId;
+      if (!playerId) {
+        closeTimeAlert();
+        return;
+      }
+      alertedPlayers.add(String(playerId));
+      closeTimeAlert();
+      completePlayer(playerId);
     }
 
     function closeTimeAlert() {
       document.getElementById('timeAlertModal').classList.add('hidden');
+      activeTimeAlertPlayerId = null;
     }
 
     function loginAdmin() {
@@ -1733,6 +1853,10 @@
       };
       updatedCustomer.total_price = updatedCustomer.play_price + updatedCustomer.socks_price;
 
+      if (updatedCustomer.status === 'completed') {
+        alertedPlayers.add(String(updatedCustomer.id));
+        if (activeTimeAlertPlayerId === String(updatedCustomer.id)) closeTimeAlert();
+      }
       closePopup();
       showLoading();
       const result = await window.dataSdk.update(updatedCustomer);
@@ -1740,7 +1864,7 @@
       if (result.isOk) {
         customers[customerIndex] = updatedCustomer;
         if (updatedCustomer.status === 'playing' && new Date(updatedCustomer.end_time) > new Date()) alertedPlayers.delete(String(updatedCustomer.id));
-        if (updatedCustomer.status === 'completed') alertedPlayers.delete(String(updatedCustomer.id));
+        if (updatedCustomer.status === 'completed') { alertedPlayers.add(String(updatedCustomer.id)); if (activeTimeAlertPlayerId === String(updatedCustomer.id)) closeTimeAlert(); }
         updatePlayingTab();
         renderCustomerList();
         updateDashboard();
@@ -1794,13 +1918,17 @@
       if (status === 'playing' && new Date(customer.end_time) <= new Date()) {
         customer.end_time = new Date(Date.now() + toNumber(customer.play_time) * 60000).toISOString();
       }
+      if (status === 'completed') {
+        alertedPlayers.add(String(id));
+        if (activeTimeAlertPlayerId === String(id)) closeTimeAlert();
+      }
       closePopup();
       showLoading();
       const result = await window.dataSdk.update(customer);
       hideLoading();
       if (result.isOk) {
         customers[index] = customer;
-        if (status === 'completed') alertedPlayers.delete(String(id));
+        if (status === 'completed') { alertedPlayers.add(String(id)); if (activeTimeAlertPlayerId === String(id)) closeTimeAlert(); }
         updatePlayingTab();
         renderCustomerList();
         updateDashboard();
@@ -1841,6 +1969,8 @@
       hideLoading();
       if (result.isOk) {
         customers = customers.filter(c => !sameId(c.id, id));
+        alertedPlayers.add(String(id));
+        if (activeTimeAlertPlayerId === String(id)) closeTimeAlert();
         updatePlayingTab();
         renderCustomerList();
         updateDashboard();
@@ -1899,14 +2029,14 @@
       });
 
       closePopup();
-      showLoading();
-      for (const customer of toDelete) {
-        await window.dataSdk.delete(customer);
+      const result = await window.dataSdk.deleteMany(toDelete);
+      if (result.isOk) {
+        showPopup(`✅ ลบ ${toDelete.length} รายการเรียบร้อย!`, 'success');
+        document.getElementById('deleteFromDate').value = '';
+        document.getElementById('deleteToDate').value = '';
+      } else {
+        showPopup('❌ ลบข้อมูลไม่สำเร็จ: ' + (result.error || ''), 'error');
       }
-      hideLoading();
-      showPopup(`✅ ลบ ${toDelete.length} รายการเรียบร้อย!`, 'success');
-      document.getElementById('deleteFromDate').value = '';
-      document.getElementById('deleteToDate').value = '';
     }
 
     function loadSettings() {
@@ -1934,7 +2064,8 @@
 
       let result;
       if (settingsRecord) {
-        result = await window.dataSdk.update({ ...settingsRecord, ...newSettings });
+        // Update only settings fields. Do not merge customer fields from settingsRecord.
+        result = await window.dataSdk.update(newSettings);
       } else {
         result = await window.dataSdk.create({ ...newSettings, created_at: new Date().toISOString() });
       }
